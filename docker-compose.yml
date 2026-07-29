@@ -1,0 +1,14 @@
+services:
+  todo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/juldenereaz/todo:latest
+    container_name: todo
+    restart: unless-stopped
+    ports:
+      - "3011:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
