@@ -7,7 +7,7 @@ import path from "node:path";
 const dbPath = process.env.DATABASE_PATH ?? "./data/todo.db";
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
-const sqlite = new Database(dbPath);
+const sqlite = new Database(dbPath, { timeout: 5000 });
 sqlite.pragma("journal_mode = WAL");
 sqlite.pragma("foreign_keys = ON");
 

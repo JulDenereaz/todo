@@ -19,6 +19,10 @@ const autheliaProvider: OIDCConfig<AutheliaProfile> = {
   clientId: process.env.AUTH_AUTHELIA_ID,
   clientSecret: process.env.AUTH_AUTHELIA_SECRET,
   authorization: { params: { scope: "openid profile email" } },
+  // Auth.js only auto-adds the "state" check when redirectProxyUrl is set;
+  // without it the default is just ["pkce"]. Authelia rejects authorization
+  // requests that omit `state` (or is under 8 chars), so it must be explicit.
+  checks: ["pkce", "state"],
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({

@@ -9,7 +9,7 @@ const globalForDb = globalThis as unknown as { sqlite?: Database.Database };
 const dbPath = process.env.DATABASE_PATH ?? "./data/todo.db";
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
-const sqlite = globalForDb.sqlite ?? new Database(dbPath);
+const sqlite = globalForDb.sqlite ?? new Database(dbPath, { timeout: 5000 });
 sqlite.pragma("journal_mode = WAL");
 sqlite.pragma("foreign_keys = ON");
 
