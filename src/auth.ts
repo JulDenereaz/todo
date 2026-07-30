@@ -30,8 +30,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [autheliaProvider],
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, profile }) {
+    async jwt({ token, profile, account }) {
       if (profile?.sub) {
+        // TEMPORARY: diagnosing missing name/email claims from Authelia. Remove after debugging.
+        console.log("[auth debug] granted scope:", account?.scope);
+        console.log("[auth debug] raw profile:", JSON.stringify(profile));
+
         const now = new Date();
         db.insert(users)
           .values({
