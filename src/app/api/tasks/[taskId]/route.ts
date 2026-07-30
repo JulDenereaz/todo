@@ -88,23 +88,44 @@ export const PATCH = withLogging(
       if (!replaceTaskTags(taskId, userId, parsed.data.tagIds)) return badRequest("Invalid tagIds");
     }
 
-    const title = parsed.data.title ?? existing.title;
+    const changes: string[] = [];
+    if (parsed.data.title !== undefined && parsed.data.title !== existing.title) {
+      changes.push(`renamed to "${parsed.data.title}"`);
+    }
+    if (parsed.data.notes !== undefined && parsed.data.notes !== existing.notes) {
+      changes.push("updated notes");
+    }
+    if (parsed.data.priority !== undefined && parsed.data.priority !== existing.priority) {
+      changes.push(`set priority to ${parsed.data.priority}`);
+    }
+    if (dueDate !== undefined) {
+      const existingTime = existing.dueDate ? existing.dueDate.getTime() : null;
+      const newTime = dueDate ? dueDate.getTime() : null;
+      if (existingTime !== newTime) {
+        changes.push(
+          dueDate
+            ? `set due date to ${dueDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+            : "cleared the due date"
+        );
+      }
+    }
     if (parsed.data.completed !== undefined && parsed.data.completed !== existing.completed) {
-      logActivity({
-        listId: targetListId,
-        taskId,
-        actorId: userId,
-        type: parsed.data.completed ? "task_completed" : "task_uncompleted",
-        summary: `${parsed.data.completed ? "completed" : "reopened"} "${title}"`,
-      });
+      changes.push(parsed.data.completed ? "marked as done" : "marked as not done");
     }
     if (parsed.data.assigneeId !== undefined && parsed.data.assigneeId !== existing.assigneeId) {
+      changes.push(parsed.data.assigneeId ? `assigned to ${assigneeLabel}` : "unassigned it");
+    }
+    if (parsed.data.listId !== undefined && parsed.data.listId !== existing.listId) {
+      changes.push("moved it to another list");
+    }
+
+    if (changes.length > 0) {
       logActivity({
         listId: targetListId,
         taskId,
         actorId: userId,
-        type: parsed.data.assigneeId ? "task_assigned" : "task_unassigned",
-        summary: parsed.data.assigneeId ? `assigned "${title}" to ${assigneeLabel}` : `unassigned "${title}"`,
+        type: "task_updated",
+        summary: `updated "${existing.title}" (${changes.join(", ")})`,
       });
     }
 

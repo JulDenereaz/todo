@@ -41,7 +41,7 @@ export default function TaskRow({
       style={style}
       className="flex flex-col rounded-md border border-transparent bg-white dark:bg-zinc-900 dark:hover:border-zinc-800 hover:border-zinc-200"
     >
-      <div className="group flex items-center gap-3 px-2 py-2.5">
+      <div className="group flex items-center gap-3 px-2 py-3">
         {sortable && (
           <button
             {...attributes}
@@ -61,10 +61,10 @@ export default function TaskRow({
 
         <button
           onClick={onToggleExpand}
-          className={`flex flex-1 items-center gap-1.5 truncate text-left text-base font-medium ${task.completed ? "text-zinc-400 line-through" : ""}`}
+          className={`flex flex-1 items-center gap-1.5 truncate text-left text-lg font-semibold ${task.completed ? "text-zinc-400 line-through" : ""}`}
           aria-expanded={expanded}
         >
-          <ChevronIcon open={expanded} className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
+          <ChevronIcon open={expanded} className="h-4 w-4 shrink-0 text-zinc-400" />
           <span className="truncate">{task.title}</span>
         </button>
 

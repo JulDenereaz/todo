@@ -6,11 +6,8 @@ import type { ActivityEntry } from "@/lib/types";
 
 const DOT_COLOR: Record<ActivityEntry["type"], string> = {
   task_created: "bg-zinc-400",
-  task_completed: "bg-green-500",
-  task_uncompleted: "bg-zinc-400",
+  task_updated: "bg-blue-500",
   task_deleted: "bg-red-500",
-  task_assigned: "bg-blue-500",
-  task_unassigned: "bg-zinc-400",
   member_added: "bg-blue-500",
   member_removed: "bg-red-500",
   list_renamed: "bg-zinc-400",

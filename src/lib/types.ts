@@ -58,11 +58,8 @@ export interface TaskDetail extends Task {
 
 export type ActivityType =
   | "task_created"
-  | "task_completed"
-  | "task_uncompleted"
+  | "task_updated"
   | "task_deleted"
-  | "task_assigned"
-  | "task_unassigned"
   | "member_added"
   | "member_removed"
   | "list_renamed";
