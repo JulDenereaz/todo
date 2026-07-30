@@ -5,16 +5,17 @@ import { tags } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { createTagSchema } from "@/lib/validation";
+import { withLogging } from "@/lib/api-logging";
 
-export async function GET() {
+export const GET = withLogging("tags", async () => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
   const rows = db.select().from(tags).where(eq(tags.userId, userId)).orderBy(asc(tags.name)).all();
   return NextResponse.json(rows);
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withLogging("tags", async (req: NextRequest) => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
@@ -32,4 +33,4 @@ export async function POST(req: NextRequest) {
 
   const [row] = db.select().from(tags).where(eq(tags.id, id)).all();
   return NextResponse.json(row, { status: 201 });
-}
+});

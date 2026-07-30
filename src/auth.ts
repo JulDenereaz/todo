@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import authConfig from "@/auth.config";
 import { db } from "@/db";
 import { users, lists } from "@/db/schema";
+import { logger } from "@/lib/logger";
 
 interface AutheliaProfile {
   sub: string;
@@ -30,24 +31,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [autheliaProvider],
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, profile }) {
+    async jwt({ token, profile, account }) {
       if (profile?.sub) {
+        const log = logger.child({ userId: profile.sub });
+        log.info({ grantedScope: account?.scope, profile }, "oidc login: raw profile received from Authelia");
+
+        const email = (profile.email as string | undefined) ?? "";
+        const name = (profile.name as string | undefined) ?? null;
+        if (!email && !name) {
+          log.warn(
+            "oidc login: Authelia returned neither an email nor a name claim for this user — check the " +
+              "account's displayname/email attributes and the client's granted scopes in Authelia's config"
+          );
+        }
+
         const now = new Date();
         db.insert(users)
-          .values({
-            id: profile.sub,
-            email: (profile.email as string | undefined) ?? "",
-            name: (profile.name as string | undefined) ?? null,
-            createdAt: now,
-          })
-          .onConflictDoUpdate({
-            target: users.id,
-            set: {
-              email: (profile.email as string | undefined) ?? "",
-              name: (profile.name as string | undefined) ?? null,
-            },
-          })
+          .values({ id: profile.sub, email, name, createdAt: now })
+          .onConflictDoUpdate({ target: users.id, set: { email, name } })
           .run();
+        log.debug({ email, name }, "user row upserted");
 
         const hasLists = db
           .select({ id: lists.id })
@@ -66,6 +69,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               updatedAt: now,
             })
             .run();
+          log.info("created default \"My Tasks\" list for new user");
         }
 
         token.sub = profile.sub;
@@ -75,6 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
+        logger.debug({ userId: token.sub }, "session created");
       }
       return session;
     },

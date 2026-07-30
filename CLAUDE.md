@@ -13,12 +13,15 @@ src/
     schema.ts             # Drizzle schema: users, lists, tasks, subtasks, tags, task_tags
     index.ts               # DB client singleton (better-sqlite3 + drizzle)
   lib/
-    session.ts             # requireUserId() — used by every API route
+    session.ts             # requireUserId() — used by every API route; logs each auth check
     api-helpers.ts          # unauthorized()/notFound()/badRequest() JSON response helpers
     validation.ts           # zod schemas for API request bodies
     tasks.ts                # attachTags()/replaceTaskTags() — shared task+tag join logic
+    lists.ts                 # shared-list access helpers (getAccessibleListIds/canAccessList/getListMembers)
+    logger.ts                 # pino instance — structured JSON logs to stdout, LOG_LEVEL-controlled
+    api-logging.ts             # withLogging() wrapper — every route handler is wrapped with it
     fetcher.ts               # SWR fetcher + apiRequest() helper for client-side calls
-    hooks/                    # useLists, useTasks, useTags, useTaskDetail (SWR + mutations)
+    hooks/                    # useLists, useTasks, useTags, useTaskDetail, useUsers (SWR + mutations)
   app/
     api/                      # REST-ish route handlers, one per resource (see below)
     (app)/                    # Authenticated route group: layout.tsx (AppShell), page.tsx (all tasks),
@@ -50,9 +53,19 @@ See `.env.example` / README for the full table. The ones that matter for local d
 
 1. Add the table to `src/db/schema.ts`, run `npm run db:generate` then `npm run db:migrate`.
 2. Add zod schemas to `src/lib/validation.ts`.
-3. Add route handler(s) under `src/app/api/<resource>/route.ts` — always start with `requireUserId()` and scope every query by it.
+3. Add route handler(s) under `src/app/api/<resource>/route.ts` — always start with `requireUserId()` and scope every query by it. Wrap every exported handler (`GET`/`POST`/`PATCH`/`DELETE`) with `withLogging("<label>", handler)` from `src/lib/api-logging.ts`, matching the pattern in existing routes.
 4. Add an SWR hook in `src/lib/hooks/`.
 5. Wire it into a component under `src/components/`.
+
+## Logging
+
+- `src/lib/logger.ts` exports a `pino` instance writing structured JSON to stdout — `docker logs`/Portainer show it as-is, no extra infra needed. `LOG_LEVEL` env var controls verbosity (default `debug`, i.e. verbose).
+- Every API route handler is wrapped with `withLogging()` (`src/lib/api-logging.ts`), logging request start/end (method, url, params, status, duration) and any thrown error.
+- Every SQL query (text + params) is logged at `debug` via a custom Drizzle `Logger` wired up in `src/db/index.ts`.
+- `requireUserId()` (`src/lib/session.ts`) logs whether a session resolved on every call.
+- OIDC login events in `src/auth.ts` log the granted scope and the raw Authelia profile claims at `info`, plus a `warn` if both email and name come back empty (points at Authelia's client scopes / user attributes as the likely cause).
+- `middleware.ts` runs on the Edge runtime (no Node APIs), so it logs with plain `console.log(JSON.stringify(...))` instead of pino — same structured-JSON convention, just not routed through the shared logger instance.
+- Credential-shaped fields (tokens, secrets, auth headers/cookies) are redacted in `logger.ts` even at the most verbose level; treat that as a hard boundary, not just a default — don't log raw tokens/secrets in new code even if `LOG_LEVEL=trace`.
 
 ## Ordering / drag-and-drop
 
