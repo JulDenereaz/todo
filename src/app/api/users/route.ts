@@ -4,8 +4,9 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized } from "@/lib/api-helpers";
+import { withLogging } from "@/lib/api-logging";
 
-export async function GET() {
+export const GET = withLogging("users", async () => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
@@ -15,4 +16,4 @@ export async function GET() {
     .orderBy(asc(users.name), asc(users.email))
     .all();
   return NextResponse.json(rows);
-}
+});

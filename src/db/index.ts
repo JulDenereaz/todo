@@ -1,8 +1,16 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
+import type { Logger as DrizzleLogger } from "drizzle-orm/logger";
 import fs from "node:fs";
 import path from "node:path";
 import * as schema from "./schema";
+import { logger } from "@/lib/logger";
+
+class PinoDrizzleLogger implements DrizzleLogger {
+  logQuery(query: string, params: unknown[]) {
+    logger.debug({ query, params }, "db query");
+  }
+}
 
 const globalForDb = globalThis as unknown as { sqlite?: Database.Database };
 
@@ -17,4 +25,4 @@ if (process.env.NODE_ENV !== "production") {
   globalForDb.sqlite = sqlite;
 }
 
-export const db = drizzle(sqlite, { schema });
+export const db = drizzle(sqlite, { schema, logger: new PinoDrizzleLogger() });

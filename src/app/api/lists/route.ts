@@ -6,17 +6,18 @@ import { requireUserId } from "@/lib/session";
 import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { createListSchema } from "@/lib/validation";
 import { getAccessibleListIds, getListsByIds, attachMembers } from "@/lib/lists";
+import { withLogging } from "@/lib/api-logging";
 
-export async function GET() {
+export const GET = withLogging("lists", async () => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
   const listIds = getAccessibleListIds(userId);
   const rows = getListsByIds(listIds).sort((a, b) => a.position - b.position);
   return NextResponse.json(attachMembers(rows));
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withLogging("lists", async (req: NextRequest) => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
@@ -48,4 +49,4 @@ export async function POST(req: NextRequest) {
 
   const [row] = db.select().from(lists).where(eq(lists.id, id)).all();
   return NextResponse.json(attachMembers([row])[0], { status: 201 });
-}
+});

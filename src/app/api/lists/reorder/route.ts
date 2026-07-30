@@ -6,8 +6,9 @@ import { requireUserId } from "@/lib/session";
 import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { reorderSchema } from "@/lib/validation";
 import { getAccessibleListIds } from "@/lib/lists";
+import { withLogging } from "@/lib/api-logging";
 
-export async function PATCH(req: NextRequest) {
+export const PATCH = withLogging("lists/reorder", async (req: NextRequest) => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
@@ -26,4 +27,4 @@ export async function PATCH(req: NextRequest) {
   });
 
   return NextResponse.json({ ok: true });
-}
+});

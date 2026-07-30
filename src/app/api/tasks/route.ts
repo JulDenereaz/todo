@@ -7,8 +7,9 @@ import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { createTaskSchema, parseOptionalDueDate } from "@/lib/validation";
 import { attachTags, attachAssignees, attachSubtaskCounts, replaceTaskTags } from "@/lib/tasks";
 import { getAccessibleListIds, canAccessList, getListMembers } from "@/lib/lists";
+import { withLogging } from "@/lib/api-logging";
 
-export async function GET(req: NextRequest) {
+export const GET = withLogging("tasks", async (req: NextRequest) => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
@@ -40,9 +41,9 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags(rows))));
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withLogging("tasks", async (req: NextRequest) => {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
@@ -92,4 +93,4 @@ export async function POST(req: NextRequest) {
 
   const [row] = db.select().from(tasks).where(eq(tasks.id, id)).all();
   return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags([row])))[0], { status: 201 });
-}
+});

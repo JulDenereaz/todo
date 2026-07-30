@@ -83,6 +83,7 @@ Set `AUTH_AUTHELIA_ISSUER` to your Authelia base URL (e.g. `https://auth.denerea
 | `AUTH_AUTHELIA_ID` | OIDC client ID registered in Authelia |
 | `AUTH_AUTHELIA_SECRET` | OIDC client secret (plaintext) |
 | `DATABASE_PATH` | Path to the SQLite file (default `/app/data/todo.db`, matches the compose volume) |
+| `LOG_LEVEL` | `trace`\|`debug`\|`info`\|`warn`\|`error`\|`fatal`\|`silent` — defaults to `debug`. Structured JSON logs to stdout (`docker logs` / Portainer): every API request, every SQL query, every auth event including raw OIDC claims. |
 
 ## docker-compose.yml
 
