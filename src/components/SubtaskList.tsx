@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Subtask } from "@/lib/types";
 import { TrashIcon } from "./icons";
+import Checkbox from "./Checkbox";
 
 export default function SubtaskList({
   subtasks,
@@ -31,11 +32,11 @@ export default function SubtaskList({
       <ul className="mb-2 flex flex-col gap-1">
         {subtasks.map((s) => (
           <li key={s.id} className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
+            <Checkbox
+              size="sm"
               checked={s.completed}
               onChange={() => onToggle(s.id, !s.completed)}
-              className="h-3.5 w-3.5 accent-zinc-900 dark:accent-zinc-100"
+              aria-label="Mark subtask complete"
             />
             <span className={`flex-1 ${s.completed ? "text-zinc-400 line-through" : ""}`}>{s.title}</span>
             <button
