@@ -18,14 +18,16 @@ src/
     validation.ts           # zod schemas for API request bodies
     tasks.ts                # attachTags()/replaceTaskTags() — shared task+tag join logic
     lists.ts                 # shared-list access helpers (getAccessibleListIds/canAccessList/getListMembers)
+    activity.ts                # logActivity()/getActivityFeed() — cross-list activity log (see below)
+    format.ts                   # formatUserLabel(), formatRelativeTime() — shared display formatting
     logger.ts                 # pino instance — structured JSON logs to stdout, LOG_LEVEL-controlled
     api-logging.ts             # withLogging() wrapper — every route handler is wrapped with it
     fetcher.ts               # SWR fetcher + apiRequest() helper for client-side calls
-    hooks/                    # useLists, useTasks, useTags, useTaskDetail, useUsers (SWR + mutations)
+    hooks/                    # useLists, useTasks, useTags, useTaskDetail, useUsers, useActivity (SWR + mutations)
   app/
     api/                      # REST-ish route handlers, one per resource (see below)
     (app)/                    # Authenticated route group: layout.tsx (AppShell), page.tsx (all tasks),
-                                lists/[listId]/page.tsx (one list)
+                                lists/[listId]/page.tsx (one list), activity/page.tsx (activity feed)
   components/                 # Sidebar, MobileHeader, TaskBoard, TaskList/TaskRow (dnd-kit),
                                 QuickAddTask, TaskDetailPanel, SubtaskList
 scripts/
@@ -56,6 +58,13 @@ See `.env.example` / README for the full table. The ones that matter for local d
 3. Add route handler(s) under `src/app/api/<resource>/route.ts` — always start with `requireUserId()` and scope every query by it. Wrap every exported handler (`GET`/`POST`/`PATCH`/`DELETE`) with `withLogging("<label>", handler)` from `src/lib/api-logging.ts`, matching the pattern in existing routes.
 4. Add an SWR hook in `src/lib/hooks/`.
 5. Wire it into a component under `src/components/`.
+
+## Activity log
+
+- The `activity` table records notable events (task created/completed/deleted/assigned, member added/removed, list renamed) scoped to a `listId`. `GET /api/activity` returns the feed across all lists the caller can access (or one list via `?listId=`), same "optional listId, else all accessible lists" pattern as `/api/tasks`.
+- Writes happen server-side as a side effect inside the existing mutation route handlers (`logActivity()` from `src/lib/activity.ts`) — there's no separate client-facing write endpoint. When adding a new kind of event, add the `ActivityType` variant in `src/lib/types.ts` and call `logActivity()` at the point of mutation, following the pattern already in `src/app/api/tasks/[taskId]/route.ts` (compares old vs new value before logging, so e.g. a PATCH that doesn't actually change `completed` doesn't log a no-op event).
+- `summary` is precomputed human-readable text at write time (e.g. the task's title), not derived by joining to the live task/list — so an entry like "deleted \"Buy milk\"" still reads correctly after the task is gone. `taskId` is nullable with `onDelete: "set null"` for the same reason: deleting a task must not delete its own "task deleted" log entry.
+- `listId` is `onDelete: "cascade"` — deleting a list wipes its activity log with it, consistent with the equal-rights sharing model (any member can already delete the whole list and everything in it).
 
 ## Logging
 

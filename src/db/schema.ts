@@ -108,3 +108,34 @@ export const taskTags = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.taskId, t.tagId] })]
 );
+
+export const activity = sqliteTable(
+  "activity",
+  {
+    id: text("id").primaryKey(),
+    listId: text("list_id")
+      .notNull()
+      .references(() => lists.id, { onDelete: "cascade" }),
+    // Nullable + set-null (not cascade): a "task deleted" entry should survive the task's own deletion.
+    taskId: text("task_id").references(() => tasks.id, { onDelete: "set null" }),
+    actorId: text("actor_id").references(() => users.id, { onDelete: "set null" }),
+    type: text("type", {
+      enum: [
+        "task_created",
+        "task_completed",
+        "task_uncompleted",
+        "task_deleted",
+        "task_assigned",
+        "task_unassigned",
+        "member_added",
+        "member_removed",
+        "list_renamed",
+      ],
+    }).notNull(),
+    // Precomputed human-readable text (e.g. task title, member name) so the feed stays
+    // meaningful even after the referenced task/list name/member has since changed or gone.
+    summary: text("summary").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("activity_list_created_idx").on(t.listId, t.createdAt)]
+);

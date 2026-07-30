@@ -15,6 +15,13 @@
       "when": 1785398773113,
       "tag": "0001_puzzling_carnage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1785423491187,
+      "tag": "0002_shallow_spencer_smythe",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@ import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { updateTaskSchema, parseOptionalDueDate } from "@/lib/validation";
 import { attachTags, attachAssignees, attachSubtaskCounts, replaceTaskTags } from "@/lib/tasks";
 import { canAccessList, getListMembers } from "@/lib/lists";
+import { logActivity, shortUserLabel } from "@/lib/activity";
 import { withLogging } from "@/lib/api-logging";
 
 function getAccessibleTask(taskId: string, userId: string) {
@@ -56,9 +57,12 @@ export const PATCH = withLogging(
       return badRequest("Invalid listId");
     }
 
+    let assigneeLabel: string | null = null;
     if (parsed.data.assigneeId !== undefined && parsed.data.assigneeId !== null) {
       const members = getListMembers(targetListId);
-      if (!members.some((m) => m.id === parsed.data.assigneeId)) return badRequest("Invalid assigneeId");
+      const assignee = members.find((m) => m.id === parsed.data.assigneeId);
+      if (!assignee) return badRequest("Invalid assigneeId");
+      assigneeLabel = shortUserLabel(assignee);
     }
 
     const dueDate = parseOptionalDueDate(parsed.data.dueDate);
@@ -84,6 +88,26 @@ export const PATCH = withLogging(
       if (!replaceTaskTags(taskId, userId, parsed.data.tagIds)) return badRequest("Invalid tagIds");
     }
 
+    const title = parsed.data.title ?? existing.title;
+    if (parsed.data.completed !== undefined && parsed.data.completed !== existing.completed) {
+      logActivity({
+        listId: targetListId,
+        taskId,
+        actorId: userId,
+        type: parsed.data.completed ? "task_completed" : "task_uncompleted",
+        summary: `${parsed.data.completed ? "completed" : "reopened"} "${title}"`,
+      });
+    }
+    if (parsed.data.assigneeId !== undefined && parsed.data.assigneeId !== existing.assigneeId) {
+      logActivity({
+        listId: targetListId,
+        taskId,
+        actorId: userId,
+        type: parsed.data.assigneeId ? "task_assigned" : "task_unassigned",
+        summary: parsed.data.assigneeId ? `assigned "${title}" to ${assigneeLabel}` : `unassigned "${title}"`,
+      });
+    }
+
     const [row] = db.select().from(tasks).where(eq(tasks.id, taskId)).all();
     return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags([row])))[0]);
   }
@@ -100,6 +124,15 @@ export const DELETE = withLogging(
     if (!existing) return notFound();
 
     db.delete(tasks).where(eq(tasks.id, taskId)).run();
+
+    logActivity({
+      listId: existing.listId,
+      taskId: null,
+      actorId: userId,
+      type: "task_deleted",
+      summary: `deleted "${existing.title}"`,
+    });
+
     return NextResponse.json({ ok: true });
   }
 );

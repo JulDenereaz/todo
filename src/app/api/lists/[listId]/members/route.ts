@@ -6,6 +6,7 @@ import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { addListMemberSchema } from "@/lib/validation";
 import { canAccessList, getListMembers } from "@/lib/lists";
+import { logActivity, shortUserLabel } from "@/lib/activity";
 import { withLogging } from "@/lib/api-logging";
 
 export const GET = withLogging(
@@ -44,6 +45,13 @@ export const POST = withLogging(
       .values({ listId, userId: target.id, createdAt: new Date() })
       .onConflictDoNothing()
       .run();
+
+    logActivity({
+      listId,
+      actorId: userId,
+      type: "member_added",
+      summary: `added ${shortUserLabel(target)} to the list`,
+    });
 
     return NextResponse.json(getListMembers(listId), { status: 201 });
   }
