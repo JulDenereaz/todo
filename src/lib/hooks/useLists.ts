@@ -38,8 +38,8 @@ export function useLists() {
     await apiRequest("/api/lists/reorder", "PATCH", items);
   }
 
-  async function addMember(listId: string, email: string) {
-    const members = await apiRequest<UserRef[]>(`/api/lists/${listId}/members`, "POST", { email });
+  async function addMember(listId: string, userId: string) {
+    const members = await apiRequest<UserRef[]>(`/api/lists/${listId}/members`, "POST", { userId });
     await mutate(
       (current) => current?.map((l) => (l.id === listId ? { ...l, members } : l)),
       { revalidate: false }
