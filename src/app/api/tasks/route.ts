@@ -7,6 +7,7 @@ import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { createTaskSchema, parseOptionalDueDate } from "@/lib/validation";
 import { attachTags, attachAssignees, attachSubtaskCounts, replaceTaskTags } from "@/lib/tasks";
 import { getAccessibleListIds, canAccessList, getListMembers } from "@/lib/lists";
+import { logActivity } from "@/lib/activity";
 import { withLogging } from "@/lib/api-logging";
 
 export const GET = withLogging("tasks", async (req: NextRequest) => {
@@ -90,6 +91,14 @@ export const POST = withLogging("tasks", async (req: NextRequest) => {
   if (parsed.data.tagIds?.length) {
     if (!replaceTaskTags(id, userId, parsed.data.tagIds)) return badRequest("Invalid tagIds");
   }
+
+  logActivity({
+    listId: parsed.data.listId,
+    taskId: id,
+    actorId: userId,
+    type: "task_created",
+    summary: `created "${parsed.data.title}"`,
+  });
 
   const [row] = db.select().from(tasks).where(eq(tasks.id, id)).all();
   return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags([row])))[0], { status: 201 });

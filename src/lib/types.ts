@@ -55,3 +55,25 @@ export interface Task {
 export interface TaskDetail extends Task {
   subtasks: Subtask[];
 }
+
+export type ActivityType =
+  | "task_created"
+  | "task_completed"
+  | "task_uncompleted"
+  | "task_deleted"
+  | "task_assigned"
+  | "task_unassigned"
+  | "member_added"
+  | "member_removed"
+  | "list_renamed";
+
+export interface ActivityEntry {
+  id: string;
+  listId: string;
+  listName: string;
+  taskId: string | null;
+  type: ActivityType;
+  summary: string;
+  actor: UserRef | null;
+  createdAt: string;
+}
