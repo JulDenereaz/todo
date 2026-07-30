@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { List } from "@/lib/types";
 import { useUsers } from "@/lib/hooks/useUsers";
+import { formatUserLabel } from "@/lib/format";
 import { TrashIcon } from "./icons";
 
 export default function ListSettings({
@@ -67,16 +68,14 @@ export default function ListSettings({
         <ul className="flex flex-col gap-1">
           {list.members.map((member) => (
             <li key={member.id} className="flex items-center justify-between gap-2">
-              <span className="truncate text-zinc-600 dark:text-zinc-300">
-                {member.name || member.email || member.id}
-              </span>
+              <span className="truncate text-zinc-600 dark:text-zinc-300">{formatUserLabel(member)}</span>
               {member.id === list.userId ? (
                 <span className="shrink-0 text-xs text-zinc-400">Owner</span>
               ) : (
                 <button
                   onClick={() => onRemoveMember(member.id)}
                   className="shrink-0 rounded p-1 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-                  aria-label={`Remove ${member.name || member.email || member.id}`}
+                  aria-label={`Remove ${formatUserLabel(member)}`}
                 >
                   <TrashIcon className="h-3.5 w-3.5" />
                 </button>
@@ -94,7 +93,7 @@ export default function ListSettings({
                 disabled={addingId === u.id}
                 className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-500 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-400"
               >
-                + {u.name || u.email || u.id}
+                + {formatUserLabel(u)}
               </button>
             ))}
           </div>

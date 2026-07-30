@@ -5,6 +5,7 @@ import { useTaskDetail } from "@/lib/hooks/useTaskDetail";
 import { useTags } from "@/lib/hooks/useTags";
 import { useLists } from "@/lib/hooks/useLists";
 import SubtaskList from "./SubtaskList";
+import { formatUserLabel } from "@/lib/format";
 import type { Priority } from "@/lib/types";
 
 export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
@@ -81,7 +82,7 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
             <option value="">Unassigned</option>
             {assignableMembers.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.name || m.email || m.id}
+                {formatUserLabel(m)}
               </option>
             ))}
           </select>
