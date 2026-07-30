@@ -24,6 +24,12 @@ const autheliaProvider: OIDCConfig<AutheliaProfile> = {
   // without it the default is just ["pkce"]. Authelia rejects authorization
   // requests that omit `state` (or is under 8 chars), so it must be explicit.
   checks: ["pkce", "state"],
+  // Unless idToken is explicitly false, Auth.js only ever reads claims off the
+  // decoded ID token and never calls the userinfo endpoint (see
+  // @auth/core/lib/actions/callback/oauth/callback.js). Authelia's ID token only
+  // carries auth/session claims (sub, amr, aud, ...) — email/name only show up
+  // in the userinfo response — so this must be false to actually get them.
+  idToken: false,
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
