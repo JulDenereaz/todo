@@ -13,6 +13,7 @@ export default function TaskList({
   onReorder,
   expandedTaskId,
   onToggleExpand,
+  onToggleSubtask,
 }: {
   tasks: Task[];
   onToggle: (task: Task) => void;
@@ -20,6 +21,7 @@ export default function TaskList({
   onReorder?: (items: { id: string; position: number }[]) => void;
   expandedTaskId: string | null;
   onToggleExpand: (id: string) => void;
+  onToggleSubtask: (taskId: string, subtaskId: string, completed: boolean) => void;
 }) {
   const [items, setItems] = useState(tasks);
   useEffect(() => setItems(tasks), [tasks]);
@@ -37,6 +39,7 @@ export default function TaskList({
             onDelete={onDelete}
             expanded={task.id === expandedTaskId}
             onToggleExpand={() => onToggleExpand(task.id)}
+            onToggleSubtask={onToggleSubtask}
           />
         ))}
       </ul>
@@ -67,6 +70,7 @@ export default function TaskList({
               onDelete={onDelete}
               expanded={task.id === expandedTaskId}
               onToggleExpand={() => onToggleExpand(task.id)}
+              onToggleSubtask={onToggleSubtask}
               sortable
             />
           ))}

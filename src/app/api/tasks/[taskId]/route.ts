@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { asc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { subtasks, tasks } from "@/db/schema";
+import { tasks } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { updateTaskSchema, parseOptionalDueDate } from "@/lib/validation";
-import { attachTags, attachAssignees, attachSubtaskCounts, replaceTaskTags } from "@/lib/tasks";
+import { attachTags, attachAssignees, attachSubtasks, replaceTaskTags } from "@/lib/tasks";
 import { canAccessList, getListMembers } from "@/lib/lists";
 import { logActivity, shortUserLabel } from "@/lib/activity";
 import { withLogging } from "@/lib/api-logging";
@@ -27,15 +27,8 @@ export const GET = withLogging(
     const task = getAccessibleTask(taskId, userId);
     if (!task) return notFound();
 
-    const taskSubtasks = db
-      .select()
-      .from(subtasks)
-      .where(eq(subtasks.taskId, taskId))
-      .orderBy(asc(subtasks.position))
-      .all();
-
-    const [withCounts] = attachSubtaskCounts(attachAssignees(attachTags([task])));
-    return NextResponse.json({ ...withCounts, subtasks: taskSubtasks });
+    const [withSubtasks] = attachSubtasks(attachAssignees(attachTags([task])));
+    return NextResponse.json(withSubtasks);
   }
 );
 
@@ -130,7 +123,7 @@ export const PATCH = withLogging(
     }
 
     const [row] = db.select().from(tasks).where(eq(tasks.id, taskId)).all();
-    return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags([row])))[0]);
+    return NextResponse.json(attachSubtasks(attachAssignees(attachTags([row])))[0]);
   }
 );
 

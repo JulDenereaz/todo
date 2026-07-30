@@ -9,7 +9,10 @@ import TaskList from "./TaskList";
 
 export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: string }) {
   const { lists } = useLists();
-  const { tasks, isLoading, createTask, toggleComplete, deleteTask, reorderTasks } = useTasks({ listId, tagId });
+  const { tasks, isLoading, createTask, toggleComplete, deleteTask, reorderTasks, toggleSubtask } = useTasks({
+    listId,
+    tagId,
+  });
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -49,6 +52,7 @@ export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: 
           onReorder={listId ? reorderTasks : undefined}
           expandedTaskId={expandedTaskId}
           onToggleExpand={toggleExpand}
+          onToggleSubtask={toggleSubtask}
         />
       )}
     </div>

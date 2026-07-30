@@ -9,7 +9,7 @@ export function useTaskDetail(taskId: string | null) {
   );
   const { mutate: globalMutate } = useSWRConfig();
 
-  /** Keeps the "/api/tasks?..." list caches' subtask badges in sync with edits made here. */
+  /** Keeps the "/api/tasks?..." list caches in sync with edits made here (in the accordion). */
   function syncListCaches(updater: (task: Task) => Task) {
     if (!taskId) return;
     globalMutate(
@@ -26,8 +26,10 @@ export function useTaskDetail(taskId: string | null) {
   ) {
     if (!taskId) return;
     await mutate((current) => (current ? { ...current, ...patch } : current), { revalidate: false });
+    syncListCaches((t) => ({ ...t, ...patch }));
     const updated = await apiRequest<TaskDetail>(`/api/tasks/${taskId}`, "PATCH", patch);
     await mutate((current) => (current ? { ...current, ...updated } : current), { revalidate: false });
+    syncListCaches((t) => ({ ...t, ...updated }));
   }
 
   async function addSubtask(title: string) {
@@ -37,7 +39,7 @@ export function useTaskDetail(taskId: string | null) {
       (current) => (current ? { ...current, subtasks: [...current.subtasks, created] } : current),
       { revalidate: false }
     );
-    syncListCaches((t) => ({ ...t, subtaskCount: t.subtaskCount + 1 }));
+    syncListCaches((t) => ({ ...t, subtasks: [...t.subtasks, created] }));
   }
 
   async function toggleSubtask(subtaskId: string, completed: boolean) {
@@ -50,23 +52,18 @@ export function useTaskDetail(taskId: string | null) {
     );
     syncListCaches((t) => ({
       ...t,
-      subtaskDoneCount: t.subtaskDoneCount + (completed ? 1 : -1),
+      subtasks: t.subtasks.map((s) => (s.id === subtaskId ? { ...s, completed } : s)),
     }));
     await apiRequest(`/api/subtasks/${subtaskId}`, "PATCH", { completed });
   }
 
   async function deleteSubtask(subtaskId: string) {
-    const removed = data?.subtasks.find((s) => s.id === subtaskId);
     await mutate(
       (current) =>
         current ? { ...current, subtasks: current.subtasks.filter((s) => s.id !== subtaskId) } : current,
       { revalidate: false }
     );
-    syncListCaches((t) => ({
-      ...t,
-      subtaskCount: t.subtaskCount - 1,
-      subtaskDoneCount: removed?.completed ? t.subtaskDoneCount - 1 : t.subtaskDoneCount,
-    }));
+    syncListCaches((t) => ({ ...t, subtasks: t.subtasks.filter((s) => s.id !== subtaskId) }));
     await apiRequest(`/api/subtasks/${subtaskId}`, "DELETE");
   }
 
