@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+:root {
+  /* Without this, native popups (<select> options, date pickers, scrollbars) don't
+     know the page is dark-themed and render with a light background, which collides
+     with the dark-mode text color we inherit into them and makes options unreadable. */
+  color-scheme: light dark;
+}

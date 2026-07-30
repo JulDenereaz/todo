@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "@/lib/types";
 import TaskDetailAccordion from "./TaskDetailAccordion";
 import { TrashIcon, ChevronIcon } from "./icons";
+import Checkbox from "./Checkbox";
 
 const PRIORITY_COLOR: Record<Task["priority"], string> = {
   none: "transparent",
@@ -52,12 +53,7 @@ export default function TaskRow({
           </button>
         )}
 
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={() => onToggle(task)}
-          className="h-4 w-4 shrink-0 accent-zinc-900 dark:accent-zinc-100"
-        />
+        <Checkbox checked={task.completed} onChange={() => onToggle(task)} aria-label="Mark task complete" />
 
         {task.priority !== "none" && (
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: PRIORITY_COLOR[task.priority] }} />

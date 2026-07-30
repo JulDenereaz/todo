@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { List } from "@/lib/types";
+import { useUsers } from "@/lib/hooks/useUsers";
 import { TrashIcon } from "./icons";
 
 export default function ListSettings({
@@ -14,27 +15,25 @@ export default function ListSettings({
   list: List;
   onRename: (name: string) => void;
   onDelete: () => void;
-  onAddMember: (email: string) => Promise<void>;
+  onAddMember: (userId: string) => Promise<void>;
   onRemoveMember: (userId: string) => void;
 }) {
   const [nameDraft, setNameDraft] = useState(list.name);
-  const [email, setEmail] = useState("");
+  const { users } = useUsers();
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [addingId, setAddingId] = useState<string | null>(null);
 
-  async function handleAddMember(e: React.FormEvent) {
-    e.preventDefault();
-    const trimmed = email.trim();
-    if (!trimmed || submitting) return;
-    setSubmitting(true);
+  const availableUsers = users.filter((u) => !list.members.some((m) => m.id === u.id));
+
+  async function handleAddMember(userId: string) {
+    setAddingId(userId);
     setError(null);
     try {
-      await onAddMember(trimmed);
-      setEmail("");
+      await onAddMember(userId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add member");
     } finally {
-      setSubmitting(false);
+      setAddingId(null);
     }
   }
 
@@ -68,14 +67,16 @@ export default function ListSettings({
         <ul className="flex flex-col gap-1">
           {list.members.map((member) => (
             <li key={member.id} className="flex items-center justify-between gap-2">
-              <span className="truncate text-zinc-600 dark:text-zinc-300">{member.name ?? member.email}</span>
+              <span className="truncate text-zinc-600 dark:text-zinc-300">
+                {member.name || member.email || member.id}
+              </span>
               {member.id === list.userId ? (
                 <span className="shrink-0 text-xs text-zinc-400">Owner</span>
               ) : (
                 <button
                   onClick={() => onRemoveMember(member.id)}
                   className="shrink-0 rounded p-1 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-                  aria-label={`Remove ${member.name ?? member.email}`}
+                  aria-label={`Remove ${member.name || member.email || member.id}`}
                 >
                   <TrashIcon className="h-3.5 w-3.5" />
                 </button>
@@ -83,22 +84,21 @@ export default function ListSettings({
             </li>
           ))}
         </ul>
-        <form onSubmit={handleAddMember} className="mt-2 flex gap-1.5">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Add member by email..."
-            className="flex-1 rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs outline-none dark:border-zinc-700 dark:bg-zinc-900"
-          />
-          <button
-            type="submit"
-            disabled={submitting}
-            className="rounded-md bg-zinc-900 px-2.5 py-1 text-xs text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-          >
-            Add
-          </button>
-        </form>
+
+        {availableUsers.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {availableUsers.map((u) => (
+              <button
+                key={u.id}
+                onClick={() => handleAddMember(u.id)}
+                disabled={addingId === u.id}
+                className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-500 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-400"
+              >
+                + {u.name || u.email || u.id}
+              </button>
+            ))}
+          </div>
+        )}
         {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
       </div>
 

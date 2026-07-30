@@ -36,7 +36,7 @@ export function ChevronIcon({ className, open }: { className?: string; open?: bo
   );
 }
 
-export function GearIcon({ className }: { className?: string }) {
+export function PencilIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 20 20"
@@ -48,8 +48,8 @@ export function GearIcon({ className }: { className?: string }) {
       className={className}
       aria-hidden="true"
     >
-      <circle cx="10" cy="10" r="2.5" />
-      <path d="M10 3v1.5M10 15.5V17M17 10h-1.5M4.5 10H3M14.9 5.1l-1.1 1.1M6.2 13.8l-1.1 1.1M14.9 14.9l-1.1-1.1M6.2 6.2L5.1 5.1" />
+      <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
+      <path d="M11.5 5.5l3 3" />
     </svg>
   );
 }

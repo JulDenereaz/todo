@@ -81,7 +81,7 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
             <option value="">Unassigned</option>
             {assignableMembers.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.name ?? m.email}
+                {m.name || m.email || m.id}
               </option>
             ))}
           </select>

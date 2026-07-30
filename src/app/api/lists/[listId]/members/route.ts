@@ -27,8 +27,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ lis
   const parsed = addListMemberSchema.safeParse(await req.json());
   if (!parsed.success) return badRequest(parsed.error.message);
 
-  const [target] = db.select().from(users).where(eq(users.email, parsed.data.email)).all();
-  if (!target) return badRequest("No user with that email has signed in yet");
+  const [target] = db.select().from(users).where(eq(users.id, parsed.data.userId)).all();
+  if (!target) return badRequest("Unknown user");
 
   const [list] = db.select({ userId: lists.userId }).from(lists).where(eq(lists.id, listId)).all();
   if (!list) return notFound();

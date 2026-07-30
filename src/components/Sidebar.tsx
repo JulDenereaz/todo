@@ -6,7 +6,7 @@ import { Suspense, useState } from "react";
 import { useLists } from "@/lib/hooks/useLists";
 import { useTags } from "@/lib/hooks/useTags";
 import ListSettings from "./ListSettings";
-import { GearIcon } from "./icons";
+import { PencilIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
   const { lists, createList, renameList, deleteList, addMember, removeMember } = useLists();
@@ -54,11 +54,11 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
               </Link>
               <button
                 onClick={() => setOpenSettingsId(openSettingsId === list.id ? null : list.id)}
-                aria-label={`Settings for ${list.name}`}
+                aria-label={`Edit ${list.name}`}
                 aria-expanded={openSettingsId === list.id}
-                className="shrink-0 rounded p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                className="shrink-0 rounded p-1.5 text-amber-500 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
               >
-                <GearIcon className="h-4 w-4" />
+                <PencilIcon className="h-4 w-4" />
               </button>
             </div>
             {openSettingsId === list.id && (

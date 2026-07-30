@@ -65,7 +65,7 @@ export const taskTagBodySchema = z.object({
 });
 
 export const addListMemberSchema = z.object({
-  email: z.string().trim().min(1).max(320).email(),
+  userId: z.string().min(1),
 });
 
 /** Returns undefined (not provided), null (explicit clear), a Date, or "invalid". */
