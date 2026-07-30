@@ -9,8 +9,8 @@ export default function Checkbox({
   size?: "sm" | "md";
   "aria-label"?: string;
 }) {
-  const dim = size === "sm" ? "h-6 w-6" : "h-8 w-8";
-  const overflow = size === "sm" ? "-inset-1" : "-inset-1.5";
+  const dim = size === "sm" ? "h-5 w-5" : "h-6 w-6";
+  const overflow = size === "sm" ? "-inset-0.5" : "-inset-1";
 
   return (
     <span className={`relative inline-flex shrink-0 ${dim}`}>
