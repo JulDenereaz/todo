@@ -23,6 +23,20 @@ export const lists = sqliteTable(
   (t) => [index("lists_user_idx").on(t.userId)]
 );
 
+export const listMembers = sqliteTable(
+  "list_members",
+  {
+    listId: text("list_id")
+      .notNull()
+      .references(() => lists.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.listId, t.userId] }), index("list_members_user_idx").on(t.userId)]
+);
+
 export const tasks = sqliteTable(
   "tasks",
   {
@@ -30,10 +44,11 @@ export const tasks = sqliteTable(
     listId: text("list_id")
       .notNull()
       .references(() => lists.id, { onDelete: "cascade" }),
-    // Denormalized for direct scoping without a join on every read.
+    // Creator of the task; visibility is now determined by list membership, not this field.
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    assigneeId: text("assignee_id").references(() => users.id, { onDelete: "set null" }),
     title: text("title").notNull(),
     notes: text("notes"),
     priority: text("priority", { enum: ["none", "low", "medium", "high"] })
@@ -49,6 +64,7 @@ export const tasks = sqliteTable(
   (t) => [
     index("tasks_user_idx").on(t.userId),
     index("tasks_list_pos_idx").on(t.listId, t.position),
+    index("tasks_assignee_idx").on(t.assigneeId),
   ]
 );
 
