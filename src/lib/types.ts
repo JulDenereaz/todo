@@ -6,6 +6,12 @@ export interface TagRef {
   color: string | null;
 }
 
+export interface UserRef {
+  id: string;
+  email: string;
+  name: string | null;
+}
+
 export interface List {
   id: string;
   userId: string;
@@ -14,6 +20,7 @@ export interface List {
   position: number;
   createdAt: string;
   updatedAt: string;
+  members: UserRef[];
 }
 
 export interface Subtask {
@@ -29,6 +36,8 @@ export interface Task {
   id: string;
   listId: string;
   userId: string;
+  assigneeId: string | null;
+  assignee: UserRef | null;
   title: string;
   notes: string | null;
   priority: Priority;
@@ -39,6 +48,8 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   tags: TagRef[];
+  subtaskCount: number;
+  subtaskDoneCount: number;
 }
 
 export interface TaskDetail extends Task {

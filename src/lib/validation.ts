@@ -27,6 +27,7 @@ export const createTaskSchema = z.object({
   priority: priorityEnum.optional(),
   dueDate: z.string().nullable().optional(),
   tagIds: z.array(z.string()).optional(),
+  assigneeId: z.string().nullable().optional(),
 });
 
 export const updateTaskSchema = z.object({
@@ -37,6 +38,7 @@ export const updateTaskSchema = z.object({
   dueDate: z.string().nullable().optional(),
   completed: z.boolean().optional(),
   tagIds: z.array(z.string()).optional(),
+  assigneeId: z.string().nullable().optional(),
 });
 
 export const createSubtaskSchema = z.object({
@@ -60,6 +62,10 @@ export const updateTagSchema = z.object({
 
 export const taskTagBodySchema = z.object({
   tagId: z.string().min(1),
+});
+
+export const addListMemberSchema = z.object({
+  email: z.string().trim().min(1).max(320).email(),
 });
 
 /** Returns undefined (not provided), null (explicit clear), a Date, or "invalid". */
