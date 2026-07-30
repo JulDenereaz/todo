@@ -120,17 +120,7 @@ export const activity = sqliteTable(
     taskId: text("task_id").references(() => tasks.id, { onDelete: "set null" }),
     actorId: text("actor_id").references(() => users.id, { onDelete: "set null" }),
     type: text("type", {
-      enum: [
-        "task_created",
-        "task_completed",
-        "task_uncompleted",
-        "task_deleted",
-        "task_assigned",
-        "task_unassigned",
-        "member_added",
-        "member_removed",
-        "list_renamed",
-      ],
+      enum: ["task_created", "task_updated", "task_deleted", "member_added", "member_removed", "list_renamed"],
     }).notNull(),
     // Precomputed human-readable text (e.g. task title, member name) so the feed stays
     // meaningful even after the referenced task/list name/member has since changed or gone.
