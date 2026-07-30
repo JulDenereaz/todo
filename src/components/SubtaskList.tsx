@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Subtask } from "@/lib/types";
+import { TrashIcon } from "./icons";
 
 export default function SubtaskList({
   subtasks,
@@ -29,7 +30,7 @@ export default function SubtaskList({
       <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Subtasks</div>
       <ul className="mb-2 flex flex-col gap-1">
         {subtasks.map((s) => (
-          <li key={s.id} className="group flex items-center gap-2 text-sm">
+          <li key={s.id} className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={s.completed}
@@ -39,10 +40,10 @@ export default function SubtaskList({
             <span className={`flex-1 ${s.completed ? "text-zinc-400 line-through" : ""}`}>{s.title}</span>
             <button
               onClick={() => onDelete(s.id)}
-              className="text-zinc-300 opacity-0 hover:text-red-500 group-hover:opacity-100"
+              className="shrink-0 rounded p-1 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
               aria-label="Delete subtask"
             >
-              ✕
+              <TrashIcon className="h-3.5 w-3.5" />
             </button>
           </li>
         ))}
