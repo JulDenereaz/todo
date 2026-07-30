@@ -11,11 +11,15 @@ export default function TaskList({
   onToggle,
   onDelete,
   onReorder,
+  expandedTaskId,
+  onToggleExpand,
 }: {
   tasks: Task[];
   onToggle: (task: Task) => void;
   onDelete: (id: string) => void;
   onReorder?: (items: { id: string; position: number }[]) => void;
+  expandedTaskId: string | null;
+  onToggleExpand: (id: string) => void;
 }) {
   const [items, setItems] = useState(tasks);
   useEffect(() => setItems(tasks), [tasks]);
@@ -26,7 +30,14 @@ export default function TaskList({
     return (
       <ul className="flex flex-col gap-1">
         {tasks.map((task) => (
-          <TaskRow key={task.id} task={task} onToggle={onToggle} onDelete={onDelete} />
+          <TaskRow
+            key={task.id}
+            task={task}
+            onToggle={onToggle}
+            onDelete={onDelete}
+            expanded={task.id === expandedTaskId}
+            onToggleExpand={() => onToggleExpand(task.id)}
+          />
         ))}
       </ul>
     );
@@ -49,7 +60,15 @@ export default function TaskList({
       <SortableContext items={items.map((t) => t.id)} strategy={verticalListSortingStrategy}>
         <ul className="flex flex-col gap-1">
           {items.map((task) => (
-            <TaskRow key={task.id} task={task} onToggle={onToggle} onDelete={onDelete} sortable />
+            <TaskRow
+              key={task.id}
+              task={task}
+              onToggle={onToggle}
+              onDelete={onDelete}
+              expanded={task.id === expandedTaskId}
+              onToggleExpand={() => onToggleExpand(task.id)}
+              sortable
+            />
           ))}
         </ul>
       </SortableContext>

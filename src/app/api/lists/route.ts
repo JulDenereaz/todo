@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { asc, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { lists } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { createListSchema } from "@/lib/validation";
+import { getAccessibleListIds, getListsByIds, attachMembers } from "@/lib/lists";
 
 export async function GET() {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
 
-  const rows = db.select().from(lists).where(eq(lists.userId, userId)).orderBy(asc(lists.position)).all();
-  return NextResponse.json(rows);
+  const listIds = getAccessibleListIds(userId);
+  const rows = getListsByIds(listIds).sort((a, b) => a.position - b.position);
+  return NextResponse.json(attachMembers(rows));
 }
 
 export async function POST(req: NextRequest) {
@@ -45,5 +47,5 @@ export async function POST(req: NextRequest) {
     .run();
 
   const [row] = db.select().from(lists).where(eq(lists.id, id)).all();
-  return NextResponse.json(row, { status: 201 });
+  return NextResponse.json(attachMembers([row])[0], { status: 201 });
 }

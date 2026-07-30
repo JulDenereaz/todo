@@ -70,3 +70,9 @@ npm run db:generate    # after editing src/db/schema.ts
 ```
 
 The Docker image is built and pushed to GHCR on every `main` commit (`.github/workflows/build.yml`, same pattern as the `homepage` project). The container runs `scripts/migrate.ts` via `tsx` before starting the server, so schema migrations apply automatically on deploy.
+
+## Git workflow
+
+- All feature work happens on the `dev` branch. Make one commit per feature/fix with a clear, specific message — don't bundle unrelated changes into one commit.
+- **Never push to or merge into `main` unless the user explicitly asks for it in that conversation turn.** Pushing `main` triggers the release pipeline (version bump, GitHub release, Docker image build/push to GHCR) — treat it as a deploy action, not a routine git operation.
+- When the user says to merge/ship/release, merge `dev` into `main` (fast-forward if possible) and push `main`. `dev` itself can be pushed anytime — it doesn't trigger the pipeline.

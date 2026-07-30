@@ -5,17 +5,21 @@ import { tags, tasks, taskTags } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { taskTagBodySchema } from "@/lib/validation";
+import { canAccessList } from "@/lib/lists";
+
+function getAccessibleTask(taskId: string, userId: string) {
+  const [task] = db.select({ id: tasks.id, listId: tasks.listId }).from(tasks).where(eq(tasks.id, taskId)).all();
+  if (!task) return null;
+  if (!canAccessList(userId, task.listId)) return null;
+  return task;
+}
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
   const { taskId } = await params;
 
-  const [task] = db
-    .select({ id: tasks.id })
-    .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
-    .all();
+  const task = getAccessibleTask(taskId, userId);
   if (!task) return notFound();
 
   const parsed = taskTagBodySchema.safeParse(await req.json());
@@ -37,11 +41,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ t
   if (!userId) return unauthorized();
   const { taskId } = await params;
 
-  const [task] = db
-    .select({ id: tasks.id })
-    .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
-    .all();
+  const task = getAccessibleTask(taskId, userId);
   if (!task) return notFound();
 
   const parsed = taskTagBodySchema.safeParse(await req.json());

@@ -1,21 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subtasks, tasks } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { createSubtaskSchema } from "@/lib/validation";
+import { canAccessList } from "@/lib/lists";
+
+function getAccessibleTask(taskId: string, userId: string) {
+  const [task] = db.select({ id: tasks.id, listId: tasks.listId }).from(tasks).where(eq(tasks.id, taskId)).all();
+  if (!task) return null;
+  if (!canAccessList(userId, task.listId)) return null;
+  return task;
+}
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
   const { taskId } = await params;
 
-  const [task] = db
-    .select({ id: tasks.id })
-    .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
-    .all();
+  const task = getAccessibleTask(taskId, userId);
   if (!task) return notFound();
 
   const rows = db.select().from(subtasks).where(eq(subtasks.taskId, taskId)).orderBy(asc(subtasks.position)).all();
@@ -27,11 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tas
   if (!userId) return unauthorized();
   const { taskId } = await params;
 
-  const [task] = db
-    .select({ id: tasks.id })
-    .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
-    .all();
+  const task = getAccessibleTask(taskId, userId);
   if (!task) return notFound();
 
   const parsed = createSubtaskSchema.safeParse(await req.json());

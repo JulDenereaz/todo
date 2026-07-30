@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { tags, taskTags } from "@/db/schema";
+import { subtasks, tags, taskTags, users } from "@/db/schema";
+import type { UserRef } from "@/lib/types";
 
 type TagRef = { id: string; name: string; color: string | null };
 
@@ -42,4 +43,46 @@ export function replaceTaskTags(taskId: string, userId: string, tagIds: string[]
       .run();
   }
   return true;
+}
+
+export function attachAssignees<T extends { id: string; assigneeId: string | null }>(
+  taskRows: T[]
+): (T & { assignee: UserRef | null })[] {
+  const assigneeIds = [...new Set(taskRows.map((t) => t.assigneeId).filter((v): v is string => !!v))];
+  if (assigneeIds.length === 0) return taskRows.map((t) => ({ ...t, assignee: null }));
+
+  const rows = db
+    .select({ id: users.id, email: users.email, name: users.name })
+    .from(users)
+    .where(inArray(users.id, assigneeIds))
+    .all();
+  const byId = new Map(rows.map((u) => [u.id, u]));
+  return taskRows.map((t) => ({ ...t, assignee: t.assigneeId ? (byId.get(t.assigneeId) ?? null) : null }));
+}
+
+export function attachSubtaskCounts<T extends { id: string }>(
+  taskRows: T[]
+): (T & { subtaskCount: number; subtaskDoneCount: number })[] {
+  if (taskRows.length === 0) return [];
+
+  const ids = taskRows.map((t) => t.id);
+  const rows = db
+    .select({ taskId: subtasks.taskId, completed: subtasks.completed })
+    .from(subtasks)
+    .where(inArray(subtasks.taskId, ids))
+    .all();
+
+  const counts = new Map<string, { total: number; done: number }>();
+  for (const row of rows) {
+    const c = counts.get(row.taskId) ?? { total: 0, done: 0 };
+    c.total += 1;
+    if (row.completed) c.done += 1;
+    counts.set(row.taskId, c);
+  }
+
+  return taskRows.map((t) => ({
+    ...t,
+    subtaskCount: counts.get(t.id)?.total ?? 0,
+    subtaskDoneCount: counts.get(t.id)?.done ?? 0,
+  }));
 }

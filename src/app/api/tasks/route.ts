@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { lists, tasks, taskTags } from "@/db/schema";
+import { tasks, taskTags } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { createTaskSchema, parseOptionalDueDate } from "@/lib/validation";
-import { attachTags, replaceTaskTags } from "@/lib/tasks";
+import { attachTags, attachAssignees, attachSubtaskCounts, replaceTaskTags } from "@/lib/tasks";
+import { getAccessibleListIds, canAccessList, getListMembers } from "@/lib/lists";
 
 export async function GET(req: NextRequest) {
   const userId = await requireUserId();
@@ -15,15 +16,17 @@ export async function GET(req: NextRequest) {
   const listId = searchParams.get("listId");
   const tagId = searchParams.get("tagId");
 
+  if (listId && !canAccessList(userId, listId)) return badRequest("Invalid listId");
+  const scopedListIds = listId ? [listId] : getAccessibleListIds(userId);
+  if (scopedListIds.length === 0) return NextResponse.json([]);
+
   let rows;
   if (tagId) {
     rows = db
       .select({ task: tasks })
       .from(tasks)
       .innerJoin(taskTags, eq(taskTags.taskId, tasks.id))
-      .where(
-        and(eq(tasks.userId, userId), eq(taskTags.tagId, tagId), listId ? eq(tasks.listId, listId) : undefined)
-      )
+      .where(and(inArray(tasks.listId, scopedListIds), eq(taskTags.tagId, tagId)))
       .orderBy(asc(tasks.position))
       .all()
       .map((r) => r.task);
@@ -31,12 +34,12 @@ export async function GET(req: NextRequest) {
     rows = db
       .select()
       .from(tasks)
-      .where(and(eq(tasks.userId, userId), listId ? eq(tasks.listId, listId) : undefined))
+      .where(inArray(tasks.listId, scopedListIds))
       .orderBy(asc(tasks.position))
       .all();
   }
 
-  return NextResponse.json(attachTags(rows));
+  return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags(rows))));
 }
 
 export async function POST(req: NextRequest) {
@@ -46,15 +49,15 @@ export async function POST(req: NextRequest) {
   const parsed = createTaskSchema.safeParse(await req.json());
   if (!parsed.success) return badRequest(parsed.error.message);
 
-  const [list] = db
-    .select()
-    .from(lists)
-    .where(and(eq(lists.id, parsed.data.listId), eq(lists.userId, userId)))
-    .all();
-  if (!list) return badRequest("Invalid listId");
+  if (!canAccessList(userId, parsed.data.listId)) return badRequest("Invalid listId");
 
   const dueDate = parseOptionalDueDate(parsed.data.dueDate);
   if (dueDate === "invalid") return badRequest("Invalid dueDate");
+
+  if (parsed.data.assigneeId) {
+    const members = getListMembers(parsed.data.listId);
+    if (!members.some((m) => m.id === parsed.data.assigneeId)) return badRequest("Invalid assigneeId");
+  }
 
   const last = db
     .select({ position: tasks.position })
@@ -72,6 +75,7 @@ export async function POST(req: NextRequest) {
       id,
       listId: parsed.data.listId,
       userId,
+      assigneeId: parsed.data.assigneeId ?? null,
       title: parsed.data.title,
       notes: parsed.data.notes ?? null,
       priority: parsed.data.priority ?? "none",
@@ -87,5 +91,5 @@ export async function POST(req: NextRequest) {
   }
 
   const [row] = db.select().from(tasks).where(eq(tasks.id, id)).all();
-  return NextResponse.json(attachTags([row])[0], { status: 201 });
+  return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags([row])))[0], { status: 201 });
 }

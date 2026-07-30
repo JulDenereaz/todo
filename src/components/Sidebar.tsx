@@ -5,14 +5,17 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useLists } from "@/lib/hooks/useLists";
 import { useTags } from "@/lib/hooks/useTags";
+import ListSettings from "./ListSettings";
+import { GearIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
-  const { lists, createList } = useLists();
+  const { lists, createList, renameList, deleteList, addMember, removeMember } = useLists();
   const { tags } = useTags();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeTag = searchParams.get("tag");
   const [newListName, setNewListName] = useState("");
+  const [openSettingsId, setOpenSettingsId] = useState<string | null>(null);
 
   async function handleCreateList(e: React.FormEvent) {
     e.preventDefault();
@@ -37,18 +40,40 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
           All tasks
         </Link>
         {lists.map((list) => (
-          <Link
-            key={list.id}
-            href={`/lists/${list.id}`}
-            onClick={onClose}
-            className={`truncate rounded-md px-3 py-2 text-sm font-medium ${
-              pathname === `/lists/${list.id}`
-                ? "bg-zinc-100 dark:bg-zinc-800"
-                : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            }`}
-          >
-            {list.name}
-          </Link>
+          <div key={list.id}>
+            <div
+              className={`flex items-center gap-1 rounded-md pr-1 ${
+                pathname === `/lists/${list.id}` ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              }`}
+            >
+              <Link href={`/lists/${list.id}`} onClick={onClose} className="flex-1 truncate px-3 py-2 text-sm font-medium">
+                {list.name}
+                {list.members.length > 1 && (
+                  <span className="ml-1.5 text-xs font-normal text-zinc-400">{list.members.length}</span>
+                )}
+              </Link>
+              <button
+                onClick={() => setOpenSettingsId(openSettingsId === list.id ? null : list.id)}
+                aria-label={`Settings for ${list.name}`}
+                aria-expanded={openSettingsId === list.id}
+                className="shrink-0 rounded p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+              >
+                <GearIcon className="h-4 w-4" />
+              </button>
+            </div>
+            {openSettingsId === list.id && (
+              <ListSettings
+                list={list}
+                onRename={(name) => renameList(list.id, name)}
+                onDelete={() => {
+                  setOpenSettingsId(null);
+                  deleteList(list.id);
+                }}
+                onAddMember={(email) => addMember(list.id, email)}
+                onRemoveMember={(userId) => removeMember(list.id, userId)}
+              />
+            )}
+          </div>
         ))}
       </nav>
 

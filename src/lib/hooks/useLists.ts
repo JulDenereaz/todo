@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { fetcher, apiRequest } from "@/lib/fetcher";
-import type { List } from "@/lib/types";
+import type { List, UserRef } from "@/lib/types";
 
 export function useLists() {
   const { data, error, isLoading, mutate } = useSWR<List[]>("/api/lists", fetcher);
@@ -38,6 +38,23 @@ export function useLists() {
     await apiRequest("/api/lists/reorder", "PATCH", items);
   }
 
+  async function addMember(listId: string, email: string) {
+    const members = await apiRequest<UserRef[]>(`/api/lists/${listId}/members`, "POST", { email });
+    await mutate(
+      (current) => current?.map((l) => (l.id === listId ? { ...l, members } : l)),
+      { revalidate: false }
+    );
+  }
+
+  async function removeMember(listId: string, userId: string) {
+    await mutate(
+      (current) =>
+        current?.map((l) => (l.id === listId ? { ...l, members: l.members.filter((m) => m.id !== userId) } : l)),
+      { revalidate: false }
+    );
+    await apiRequest(`/api/lists/${listId}/members/${userId}`, "DELETE");
+  }
+
   return {
     lists: data ?? [],
     error,
@@ -46,5 +63,7 @@ export function useLists() {
     renameList,
     deleteList,
     reorderLists,
+    addMember,
+    removeMember,
   };
 }
