@@ -1,22 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, asc, eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { lists, subtasks, tasks } from "@/db/schema";
+import { subtasks, tasks } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { updateTaskSchema, parseOptionalDueDate } from "@/lib/validation";
-import { attachTags, replaceTaskTags } from "@/lib/tasks";
+import { attachTags, attachAssignees, attachSubtaskCounts, replaceTaskTags } from "@/lib/tasks";
+import { canAccessList, getListMembers } from "@/lib/lists";
+
+function getAccessibleTask(taskId: string, userId: string) {
+  const [task] = db.select().from(tasks).where(eq(tasks.id, taskId)).all();
+  if (!task) return null;
+  if (!canAccessList(userId, task.listId)) return null;
+  return task;
+}
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
   const { taskId } = await params;
 
-  const [task] = db
-    .select()
-    .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
-    .all();
+  const task = getAccessibleTask(taskId, userId);
   if (!task) return notFound();
 
   const taskSubtasks = db
@@ -26,8 +30,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tas
     .orderBy(asc(subtasks.position))
     .all();
 
-  const [withTags] = attachTags([task]);
-  return NextResponse.json({ ...withTags, subtasks: taskSubtasks });
+  const [withCounts] = attachSubtaskCounts(attachAssignees(attachTags([task])));
+  return NextResponse.json({ ...withCounts, subtasks: taskSubtasks });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
@@ -35,23 +39,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ ta
   if (!userId) return unauthorized();
   const { taskId } = await params;
 
-  const [existing] = db
-    .select()
-    .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
-    .all();
+  const existing = getAccessibleTask(taskId, userId);
   if (!existing) return notFound();
 
   const parsed = updateTaskSchema.safeParse(await req.json());
   if (!parsed.success) return badRequest(parsed.error.message);
 
-  if (parsed.data.listId !== undefined) {
-    const [list] = db
-      .select()
-      .from(lists)
-      .where(and(eq(lists.id, parsed.data.listId), eq(lists.userId, userId)))
-      .all();
-    if (!list) return badRequest("Invalid listId");
+  const targetListId = parsed.data.listId ?? existing.listId;
+  if (parsed.data.listId !== undefined && !canAccessList(userId, parsed.data.listId)) {
+    return badRequest("Invalid listId");
+  }
+
+  if (parsed.data.assigneeId !== undefined && parsed.data.assigneeId !== null) {
+    const members = getListMembers(targetListId);
+    if (!members.some((m) => m.id === parsed.data.assigneeId)) return badRequest("Invalid assigneeId");
   }
 
   const dueDate = parseOptionalDueDate(parsed.data.dueDate);
@@ -63,6 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ ta
       ...(parsed.data.notes !== undefined ? { notes: parsed.data.notes } : {}),
       ...(parsed.data.priority !== undefined ? { priority: parsed.data.priority } : {}),
       ...(parsed.data.listId !== undefined ? { listId: parsed.data.listId } : {}),
+      ...(parsed.data.assigneeId !== undefined ? { assigneeId: parsed.data.assigneeId } : {}),
       ...(dueDate !== undefined ? { dueDate } : {}),
       ...(parsed.data.completed !== undefined
         ? { completed: parsed.data.completed, completedAt: parsed.data.completed ? new Date() : null }
@@ -77,7 +79,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ ta
   }
 
   const [row] = db.select().from(tasks).where(eq(tasks.id, taskId)).all();
-  return NextResponse.json(attachTags([row])[0]);
+  return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags([row])))[0]);
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
@@ -85,11 +87,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!userId) return unauthorized();
   const { taskId } = await params;
 
-  const [existing] = db
-    .select()
-    .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
-    .all();
+  const existing = getAccessibleTask(taskId, userId);
   if (!existing) return notFound();
 
   db.delete(tasks).where(eq(tasks.id, taskId)).run();

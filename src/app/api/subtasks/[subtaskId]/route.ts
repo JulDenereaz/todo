@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subtasks, tasks } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { updateSubtaskSchema } from "@/lib/validation";
+import { canAccessList } from "@/lib/lists";
 
-function getOwnedSubtask(subtaskId: string, userId: string) {
+function getAccessibleSubtask(subtaskId: string, userId: string) {
   const [row] = db
-    .select({ subtask: subtasks })
+    .select({ subtask: subtasks, listId: tasks.listId })
     .from(subtasks)
     .innerJoin(tasks, eq(tasks.id, subtasks.taskId))
-    .where(and(eq(subtasks.id, subtaskId), eq(tasks.userId, userId)))
+    .where(eq(subtasks.id, subtaskId))
     .all();
-  return row?.subtask ?? null;
+  if (!row) return null;
+  if (!canAccessList(userId, row.listId)) return null;
+  return row.subtask;
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ subtaskId: string }> }) {
@@ -21,7 +24,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ su
   if (!userId) return unauthorized();
   const { subtaskId } = await params;
 
-  const existing = getOwnedSubtask(subtaskId, userId);
+  const existing = getAccessibleSubtask(subtaskId, userId);
   if (!existing) return notFound();
 
   const parsed = updateSubtaskSchema.safeParse(await req.json());
@@ -44,7 +47,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!userId) return unauthorized();
   const { subtaskId } = await params;
 
-  const existing = getOwnedSubtask(subtaskId, userId);
+  const existing = getAccessibleSubtask(subtaskId, userId);
   if (!existing) return notFound();
 
   db.delete(subtasks).where(eq(subtasks.id, subtaskId)).run();

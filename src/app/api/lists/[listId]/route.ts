@@ -1,22 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { lists } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { updateListSchema } from "@/lib/validation";
+import { canAccessList, attachMembers } from "@/lib/lists";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ listId: string }> }) {
   const userId = await requireUserId();
   if (!userId) return unauthorized();
   const { listId } = await params;
 
-  const [existing] = db
-    .select()
-    .from(lists)
-    .where(and(eq(lists.id, listId), eq(lists.userId, userId)))
-    .all();
-  if (!existing) return notFound();
+  if (!canAccessList(userId, listId)) return notFound();
 
   const parsed = updateListSchema.safeParse(await req.json());
   if (!parsed.success) return badRequest(parsed.error.message);
@@ -31,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ li
     .run();
 
   const [row] = db.select().from(lists).where(eq(lists.id, listId)).all();
-  return NextResponse.json(row);
+  return NextResponse.json(attachMembers([row])[0]);
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ listId: string }> }) {
@@ -39,12 +35,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!userId) return unauthorized();
   const { listId } = await params;
 
-  const [existing] = db
-    .select()
-    .from(lists)
-    .where(and(eq(lists.id, listId), eq(lists.userId, userId)))
-    .all();
-  if (!existing) return notFound();
+  if (!canAccessList(userId, listId)) return notFound();
 
   db.delete(lists).where(eq(lists.id, listId)).run();
   return NextResponse.json({ ok: true });
