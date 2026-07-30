@@ -20,6 +20,7 @@ export default function TaskRow({
   onDelete,
   expanded,
   onToggleExpand,
+  onToggleSubtask,
   sortable,
 }: {
   task: Task;
@@ -27,6 +28,7 @@ export default function TaskRow({
   onDelete: (id: string) => void;
   expanded: boolean;
   onToggleExpand: () => void;
+  onToggleSubtask: (taskId: string, subtaskId: string, completed: boolean) => void;
   sortable?: boolean;
 }) {
   const { setNodeRef, attributes, listeners, transform, transition } = useSortable({
@@ -34,6 +36,7 @@ export default function TaskRow({
     disabled: !sortable,
   });
   const style = sortable ? { transform: CSS.Transform.toString(transform), transition } : undefined;
+  const doneCount = task.subtasks.filter((s) => s.completed).length;
 
   return (
     <li
@@ -68,9 +71,9 @@ export default function TaskRow({
           <span className="truncate">{task.title}</span>
         </button>
 
-        {task.subtaskCount > 0 && (
+        {task.subtasks.length > 0 && (
           <span className="shrink-0 rounded-full bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-            {task.subtaskDoneCount}/{task.subtaskCount}
+            {doneCount}/{task.subtasks.length}
           </span>
         )}
 
@@ -97,6 +100,24 @@ export default function TaskRow({
           <TrashIcon className="h-4 w-4" />
         </button>
       </div>
+
+      {task.subtasks.length > 0 && (
+        <ul className="flex flex-col gap-1 px-2 pb-3 pl-12">
+          {task.subtasks.map((s) => (
+            <li key={s.id} className="flex items-center gap-2">
+              <Checkbox
+                size="sm"
+                checked={s.completed}
+                onChange={() => onToggleSubtask(task.id, s.id, !s.completed)}
+                aria-label="Mark subtask complete"
+              />
+              <span className={`truncate text-sm ${s.completed ? "text-zinc-400 line-through" : "text-zinc-600 dark:text-zinc-300"}`}>
+                {s.title}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {expanded && <TaskDetailAccordion taskId={task.id} />}
     </li>

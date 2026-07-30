@@ -48,13 +48,11 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   tags: TagRef[];
-  subtaskCount: number;
-  subtaskDoneCount: number;
-}
-
-export interface TaskDetail extends Task {
   subtasks: Subtask[];
 }
+
+/** Same shape as Task — separate name kept for call-site clarity in the task-detail hook/UI. */
+export type TaskDetail = Task;
 
 export type ActivityType =
   | "task_created"

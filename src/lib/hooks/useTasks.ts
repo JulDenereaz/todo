@@ -1,6 +1,6 @@
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { fetcher, apiRequest } from "@/lib/fetcher";
-import type { Task } from "@/lib/types";
+import type { Task, TaskDetail } from "@/lib/types";
 
 export function useTasks(params: { listId?: string; tagId?: string }) {
   const query = new URLSearchParams();
@@ -9,6 +9,7 @@ export function useTasks(params: { listId?: string; tagId?: string }) {
   const key = `/api/tasks?${query.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR<Task[]>(key, fetcher);
+  const { mutate: globalMutate } = useSWRConfig();
 
   async function createTask(input: { listId: string; title: string }) {
     const created = await apiRequest<Task>("/api/tasks", "POST", input);
@@ -45,6 +46,28 @@ export function useTasks(params: { listId?: string; tagId?: string }) {
     await apiRequest("/api/tasks/reorder", "PATCH", items);
   }
 
+  /** Toggle a subtask directly from the task row, without opening the task's accordion. */
+  async function toggleSubtask(taskId: string, subtaskId: string, completed: boolean) {
+    await mutate(
+      (current) =>
+        current?.map((t) =>
+          t.id === taskId
+            ? { ...t, subtasks: t.subtasks.map((s) => (s.id === subtaskId ? { ...s, completed } : s)) }
+            : t
+        ),
+      { revalidate: false }
+    );
+    await globalMutate(
+      `/api/tasks/${taskId}`,
+      (current: TaskDetail | undefined) =>
+        current
+          ? { ...current, subtasks: current.subtasks.map((s) => (s.id === subtaskId ? { ...s, completed } : s)) }
+          : current,
+      { revalidate: false }
+    );
+    await apiRequest(`/api/subtasks/${subtaskId}`, "PATCH", { completed });
+  }
+
   return {
     tasks: data ?? [],
     error,
@@ -53,5 +76,6 @@ export function useTasks(params: { listId?: string; tagId?: string }) {
     toggleComplete,
     deleteTask,
     reorderTasks,
+    toggleSubtask,
   };
 }

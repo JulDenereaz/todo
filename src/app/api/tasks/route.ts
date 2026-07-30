@@ -5,7 +5,7 @@ import { tasks, taskTags } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, badRequest } from "@/lib/api-helpers";
 import { createTaskSchema, parseOptionalDueDate } from "@/lib/validation";
-import { attachTags, attachAssignees, attachSubtaskCounts, replaceTaskTags } from "@/lib/tasks";
+import { attachTags, attachAssignees, attachSubtasks, replaceTaskTags } from "@/lib/tasks";
 import { getAccessibleListIds, canAccessList, getListMembers } from "@/lib/lists";
 import { logActivity } from "@/lib/activity";
 import { withLogging } from "@/lib/api-logging";
@@ -41,7 +41,7 @@ export const GET = withLogging("tasks", async (req: NextRequest) => {
       .all();
   }
 
-  return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags(rows))));
+  return NextResponse.json(attachSubtasks(attachAssignees(attachTags(rows))));
 });
 
 export const POST = withLogging("tasks", async (req: NextRequest) => {
@@ -101,5 +101,5 @@ export const POST = withLogging("tasks", async (req: NextRequest) => {
   });
 
   const [row] = db.select().from(tasks).where(eq(tasks.id, id)).all();
-  return NextResponse.json(attachSubtaskCounts(attachAssignees(attachTags([row])))[0], { status: 201 });
+  return NextResponse.json(attachSubtasks(attachAssignees(attachTags([row])))[0], { status: 201 });
 });
