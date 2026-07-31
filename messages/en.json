@@ -1,0 +1,151 @@
+{
+  "ProfileSettings": {
+    "loading": "Loading…",
+    "account": "Account",
+    "name": "Name",
+    "email": "Email",
+    "memberSince": "Member since",
+    "ssoNote": "Your name and email come from your single sign-on provider and can't be changed here.",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "language": "Language",
+    "signOut": "Sign out",
+    "dangerZone": "Danger zone",
+    "deleteAccount": "Delete account",
+    "deleteConfirmTitle": "Delete account",
+    "deleteConfirmMessage": "Delete your account? This permanently removes every list you own (and all its tasks) for every member, removes you from any shared lists, and deletes tasks you created elsewhere. This can't be undone.",
+    "deleteConfirmLabel": "Delete my account"
+  },
+  "ThemeToggle": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "ConfirmDialog": {
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "Sidebar": {
+    "profileSettings": "Profile settings",
+    "allTasks": "All tasks",
+    "activity": "Activity",
+    "newListPlaceholder": "New list...",
+    "tags": "Tags",
+    "editTag": "Edit {name}",
+    "signOut": "Sign out",
+    "dragToReorder": "Drag to reorder {name}",
+    "editList": "Edit {name}"
+  },
+  "ListSettings": {
+    "name": "Name",
+    "color": "Color",
+    "noColor": "No color",
+    "setColor": "Set color {color}",
+    "members": "Members",
+    "owner": "Owner",
+    "removeMember": "Remove {name}",
+    "addMemberFailed": "Failed to add member",
+    "deleteList": "Delete list",
+    "deleteConfirmTitle": "Delete list",
+    "deleteConfirmMessage": "Delete \"{name}\"? This removes all its tasks for every member.",
+    "deleteConfirmLabel": "Delete"
+  },
+  "TagSettings": {
+    "name": "Name",
+    "color": "Color",
+    "noColor": "No color",
+    "setColor": "Set color {color}",
+    "deleteTag": "Delete tag",
+    "deleteConfirmTitle": "Delete tag",
+    "deleteConfirmMessage": "Delete tag \"{name}\"? It will be removed from all tasks.",
+    "deleteConfirmLabel": "Delete"
+  },
+  "TaskBoard": {
+    "list": "List",
+    "allTasks": "All tasks",
+    "searchPlaceholder": "Search tasks...",
+    "sortTasks": "Sort tasks",
+    "sortManual": "Manual order",
+    "sortDueDate": "Due date",
+    "sortPriority": "Priority",
+    "sortAlpha": "Alphabetical",
+    "filterByAssignee": "Filter by assignee",
+    "assigneeAnyone": "Anyone",
+    "assigneeUnassigned": "Unassigned",
+    "loading": "Loading…",
+    "noTasksYet": "No tasks yet.",
+    "noMatches": "No tasks match your filters.",
+    "noActiveTasks": "No active tasks."
+  },
+  "TaskRow": {
+    "dragToReorder": "Drag to reorder",
+    "markComplete": "Mark task complete",
+    "markSubtaskComplete": "Mark subtask complete",
+    "deleteTask": "Delete task",
+    "deleteConfirmTitle": "Delete task",
+    "deleteConfirmMessage": "Delete \"{title}\"?",
+    "deleteConfirmLabel": "Delete"
+  },
+  "TaskDetailAccordion": {
+    "loading": "Loading…",
+    "priority": "Priority",
+    "priorityNone": "None",
+    "priorityLow": "Low",
+    "priorityMedium": "Medium",
+    "priorityHigh": "High",
+    "due": "Due",
+    "assignee": "Assignee",
+    "unassigned": "Unassigned",
+    "notes": "Notes",
+    "notesPlaceholder": "Add notes...",
+    "tags": "Tags",
+    "newTagPlaceholder": "New tag...",
+    "add": "Add"
+  },
+  "SubtaskList": {
+    "subtasks": "Subtasks",
+    "markComplete": "Mark subtask complete",
+    "deleteSubtask": "Delete subtask",
+    "addPlaceholder": "Add subtask...",
+    "add": "Add"
+  },
+  "QuickAddTask": {
+    "placeholder": "Add a task...",
+    "add": "Add"
+  },
+  "CompletedTasksSection": {
+    "completedTasks": "Completed tasks"
+  },
+  "ActivityFeed": {
+    "loading": "Loading…",
+    "noActivity": "No activity yet.",
+    "someone": "Someone",
+    "justNow": "just now",
+    "range": "{start}–{end} of {total}",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "pageOf": "Page {page} of {pageCount}"
+  },
+  "AvatarUploader": {
+    "notAnImage": "Please choose an image file",
+    "canvasNotSupported": "Canvas not supported",
+    "invalidImage": "That doesn't look like a valid image",
+    "readFailed": "Failed to read the file",
+    "updateFailed": "Failed to update avatar",
+    "uploading": "Uploading…",
+    "changePhoto": "Change photo",
+    "remove": "Remove"
+  },
+  "MobileHeader": {
+    "openMenu": "Open menu"
+  },
+  "ActivityPage": {
+    "title": "Activity"
+  },
+  "ProfilePage": {
+    "title": "Profile"
+  },
+  "SignInPage": {
+    "redirecting": "Redirecting to sign in…"
+  }
+}

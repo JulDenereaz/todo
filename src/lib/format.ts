@@ -22,15 +22,16 @@ const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["minute", 60],
 ];
 
-const relativeTimeFormatter = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-
-/** "3 hours ago", "2 days ago", falling back to "just now" under a minute. */
-export function formatRelativeTime(isoDate: string): string {
+/** "3 hours ago", "2 days ago", falling back to justNow under a minute. Takes locale/justNow as
+    params (not module-level state) since this runs outside the component tree — the caller
+    supplies both from useLocale()/useTranslations() so the wording follows the active UI language. */
+export function formatRelativeTime(isoDate: string, locale?: string, justNow = "just now"): string {
+  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   const seconds = Math.round((new Date(isoDate).getTime() - Date.now()) / 1000);
   for (const [unit, unitSeconds] of RELATIVE_UNITS) {
     if (Math.abs(seconds) >= unitSeconds) {
-      return relativeTimeFormatter.format(Math.round(seconds / unitSeconds), unit);
+      return formatter.format(Math.round(seconds / unitSeconds), unit);
     }
   }
-  return "just now";
+  return justNow;
 }

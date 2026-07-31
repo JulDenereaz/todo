@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useTaskDetail } from "@/lib/hooks/useTaskDetail";
 import { useTags } from "@/lib/hooks/useTags";
 import { useLists } from "@/lib/hooks/useLists";
@@ -10,6 +11,7 @@ import { chipStyle } from "@/lib/colorStyle";
 import type { Priority } from "@/lib/types";
 
 export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
+  const t = useTranslations("TaskDetailAccordion");
   const { task, update, addSubtask, toggleSubtask, deleteSubtask, addTag, removeTag } = useTaskDetail(taskId);
   const { tags, createTag } = useTags();
   const { lists } = useLists();
@@ -19,12 +21,12 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
   if (!task) {
     return (
       <div className="border-t border-zinc-100 bg-zinc-50 px-3 py-4 dark:border-zinc-800 dark:bg-zinc-950/40">
-        <p className="text-sm text-zinc-400">Loading…</p>
+        <p className="text-sm text-zinc-400">{t("loading")}</p>
       </div>
     );
   }
 
-  const availableTags = tags.filter((t) => !task.tags.some((tt) => tt.id === t.id));
+  const availableTags = tags.filter((tg) => !task.tags.some((tt) => tt.id === tg.id));
   const list = lists.find((l) => l.id === task.listId);
   const assignableMembers = list?.members ?? [];
 
@@ -50,21 +52,21 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
 
       <div className="flex flex-wrap gap-3 text-sm">
         <label className="flex items-center gap-1.5">
-          <span className="text-zinc-400">Priority</span>
+          <span className="text-zinc-400">{t("priority")}</span>
           <select
             value={task.priority}
             onChange={(e) => update({ priority: e.target.value as Priority })}
             className="rounded-md border border-zinc-200 bg-transparent px-2 py-1 dark:border-zinc-700"
           >
-            <option value="none">None</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="none">{t("priorityNone")}</option>
+            <option value="low">{t("priorityLow")}</option>
+            <option value="medium">{t("priorityMedium")}</option>
+            <option value="high">{t("priorityHigh")}</option>
           </select>
         </label>
 
         <label className="flex items-center gap-1.5">
-          <span className="text-zinc-400">Due</span>
+          <span className="text-zinc-400">{t("due")}</span>
           <input
             type="date"
             value={task.dueDate ? task.dueDate.slice(0, 10) : ""}
@@ -74,13 +76,13 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
         </label>
 
         <label className="flex items-center gap-1.5">
-          <span className="text-zinc-400">Assignee</span>
+          <span className="text-zinc-400">{t("assignee")}</span>
           <select
             value={task.assigneeId ?? ""}
             onChange={(e) => update({ assigneeId: e.target.value || null })}
             className="rounded-md border border-zinc-200 bg-transparent px-2 py-1 dark:border-zinc-700"
           >
-            <option value="">Unassigned</option>
+            <option value="">{t("unassigned")}</option>
             {assignableMembers.map((m) => (
               <option key={m.id} value={m.id}>
                 {formatUserLabel(m)}
@@ -91,7 +93,7 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
       </div>
 
       <div>
-        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Notes</div>
+        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">{t("notes")}</div>
         <textarea
           value={notesDraft ?? task.notes ?? ""}
           onChange={(e) => setNotesDraft(e.target.value)}
@@ -100,13 +102,13 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
             setNotesDraft(null);
           }}
           rows={4}
-          placeholder="Add notes..."
+          placeholder={t("notesPlaceholder")}
           className="w-full rounded-md border border-zinc-200 bg-transparent p-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700"
         />
       </div>
 
       <div>
-        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Tags</div>
+        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">{t("tags")}</div>
         <div className="flex flex-wrap gap-1.5">
           {task.tags.map((tag) => (
             <button
@@ -135,14 +137,14 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
           <input
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
-            placeholder="New tag..."
+            placeholder={t("newTagPlaceholder")}
             className="flex-1 rounded-md border border-zinc-200 bg-transparent px-2 py-1 text-xs outline-none dark:border-zinc-700"
           />
           <button
             type="submit"
             className="rounded-md bg-zinc-900 px-2.5 py-1 text-xs text-white dark:bg-zinc-100 dark:text-zinc-900"
           >
-            Add
+            {t("add")}
           </button>
         </form>
       </div>

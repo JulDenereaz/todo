@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { TagRef } from "@/lib/types";
 import { COLOR_SWATCHES } from "@/lib/colorStyle";
 import { useConfirm } from "@/lib/hooks/useConfirm";
@@ -17,14 +18,15 @@ export default function TagSettings({
   onColorChange: (color: string | null) => void;
   onDelete: () => void;
 }) {
+  const t = useTranslations("TagSettings");
   const [nameDraft, setNameDraft] = useState(tag.name);
   const confirm = useConfirm();
 
   async function handleDelete() {
     const ok = await confirm({
-      title: "Delete tag",
-      message: `Delete tag "${tag.name}"? It will be removed from all tasks.`,
-      confirmLabel: "Delete",
+      title: t("deleteConfirmTitle"),
+      message: t("deleteConfirmMessage", { name: tag.name }),
+      confirmLabel: t("deleteConfirmLabel"),
       variant: "danger",
     });
     if (ok) onDelete();
@@ -36,7 +38,7 @@ export default function TagSettings({
       onClick={(e) => e.stopPropagation()}
     >
       <label className="flex flex-col gap-1">
-        <span className="text-xs font-semibold uppercase text-zinc-400">Name</span>
+        <span className="text-xs font-semibold uppercase text-zinc-400">{t("name")}</span>
         <input
           value={nameDraft}
           onChange={(e) => setNameDraft(e.target.value)}
@@ -50,11 +52,11 @@ export default function TagSettings({
       </label>
 
       <div>
-        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Color</div>
+        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">{t("color")}</div>
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => onColorChange(null)}
-            aria-label="No color"
+            aria-label={t("noColor")}
             aria-pressed={!tag.color}
             className={`h-5 w-5 rounded-full border-2 bg-zinc-200 dark:bg-zinc-700 ${
               !tag.color ? "border-zinc-900 dark:border-zinc-100" : "border-transparent"
@@ -64,7 +66,7 @@ export default function TagSettings({
             <button
               key={color}
               onClick={() => onColorChange(color)}
-              aria-label={`Set color ${color}`}
+              aria-label={t("setColor", { color })}
               aria-pressed={tag.color === color}
               className={`h-5 w-5 rounded-full border-2 ${
                 tag.color === color ? "border-zinc-900 dark:border-zinc-100" : "border-transparent"
@@ -80,7 +82,7 @@ export default function TagSettings({
         className="flex cursor-pointer items-center gap-1.5 self-start rounded-md p-1.5 text-xs font-medium text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
       >
         <TrashIcon className="h-3.5 w-3.5" />
-        Delete tag
+        {t("deleteTag")}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslations } from "next-intl";
 import type { List } from "@/lib/types";
 import ListSettings from "./ListSettings";
 import { PencilIcon } from "./icons";
@@ -30,6 +31,7 @@ export default function SidebarListItem({
   onAddMember: (userId: string) => Promise<void>;
   onRemoveMember: (userId: string) => void;
 }) {
+  const t = useTranslations("Sidebar");
   const { setNodeRef, attributes, listeners, transform, transition } = useSortable({ id: list.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -44,7 +46,7 @@ export default function SidebarListItem({
           {...attributes}
           {...listeners}
           className="cursor-grab touch-none px-1 text-zinc-300 dark:text-zinc-600"
-          aria-label={`Drag to reorder ${list.name}`}
+          aria-label={t("dragToReorder", { name: list.name })}
         >
           ⠿
         </button>
@@ -63,7 +65,7 @@ export default function SidebarListItem({
         </Link>
         <button
           onClick={onToggleSettings}
-          aria-label={`Edit ${list.name}`}
+          aria-label={t("editList", { name: list.name })}
           aria-expanded={settingsOpen}
           className="shrink-0 rounded p-1.5 text-amber-500 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
         >

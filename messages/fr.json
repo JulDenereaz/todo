@@ -1,0 +1,151 @@
+{
+  "ProfileSettings": {
+    "loading": "Chargement…",
+    "account": "Compte",
+    "name": "Nom",
+    "email": "E-mail",
+    "memberSince": "Membre depuis",
+    "ssoNote": "Votre nom et votre e-mail proviennent de votre fournisseur d'authentification unique et ne peuvent pas être modifiés ici.",
+    "appearance": "Apparence",
+    "theme": "Thème",
+    "language": "Langue",
+    "signOut": "Se déconnecter",
+    "dangerZone": "Zone de danger",
+    "deleteAccount": "Supprimer le compte",
+    "deleteConfirmTitle": "Supprimer le compte",
+    "deleteConfirmMessage": "Supprimer votre compte ? Cela supprime définitivement toutes les listes dont vous êtes propriétaire (et toutes leurs tâches) pour tous les membres, vous retire des listes partagées, et supprime les tâches que vous avez créées ailleurs. Cette action est irréversible.",
+    "deleteConfirmLabel": "Supprimer mon compte"
+  },
+  "ThemeToggle": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système"
+  },
+  "ConfirmDialog": {
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
+  },
+  "Sidebar": {
+    "profileSettings": "Paramètres du profil",
+    "allTasks": "Toutes les tâches",
+    "activity": "Activité",
+    "newListPlaceholder": "Nouvelle liste...",
+    "tags": "Étiquettes",
+    "editTag": "Modifier {name}",
+    "signOut": "Se déconnecter",
+    "dragToReorder": "Glisser pour réorganiser {name}",
+    "editList": "Modifier {name}"
+  },
+  "ListSettings": {
+    "name": "Nom",
+    "color": "Couleur",
+    "noColor": "Aucune couleur",
+    "setColor": "Choisir la couleur {color}",
+    "members": "Membres",
+    "owner": "Propriétaire",
+    "removeMember": "Retirer {name}",
+    "addMemberFailed": "Échec de l'ajout du membre",
+    "deleteList": "Supprimer la liste",
+    "deleteConfirmTitle": "Supprimer la liste",
+    "deleteConfirmMessage": "Supprimer « {name} » ? Cela supprime toutes ses tâches pour tous les membres.",
+    "deleteConfirmLabel": "Supprimer"
+  },
+  "TagSettings": {
+    "name": "Nom",
+    "color": "Couleur",
+    "noColor": "Aucune couleur",
+    "setColor": "Choisir la couleur {color}",
+    "deleteTag": "Supprimer l'étiquette",
+    "deleteConfirmTitle": "Supprimer l'étiquette",
+    "deleteConfirmMessage": "Supprimer l'étiquette « {name} » ? Elle sera retirée de toutes les tâches.",
+    "deleteConfirmLabel": "Supprimer"
+  },
+  "TaskBoard": {
+    "list": "Liste",
+    "allTasks": "Toutes les tâches",
+    "searchPlaceholder": "Rechercher des tâches...",
+    "sortTasks": "Trier les tâches",
+    "sortManual": "Ordre manuel",
+    "sortDueDate": "Date d'échéance",
+    "sortPriority": "Priorité",
+    "sortAlpha": "Alphabétique",
+    "filterByAssignee": "Filtrer par assigné",
+    "assigneeAnyone": "Tout le monde",
+    "assigneeUnassigned": "Non assigné",
+    "loading": "Chargement…",
+    "noTasksYet": "Aucune tâche pour le moment.",
+    "noMatches": "Aucune tâche ne correspond à vos filtres.",
+    "noActiveTasks": "Aucune tâche active."
+  },
+  "TaskRow": {
+    "dragToReorder": "Glisser pour réorganiser",
+    "markComplete": "Marquer la tâche comme terminée",
+    "markSubtaskComplete": "Marquer la sous-tâche comme terminée",
+    "deleteTask": "Supprimer la tâche",
+    "deleteConfirmTitle": "Supprimer la tâche",
+    "deleteConfirmMessage": "Supprimer « {title} » ?",
+    "deleteConfirmLabel": "Supprimer"
+  },
+  "TaskDetailAccordion": {
+    "loading": "Chargement…",
+    "priority": "Priorité",
+    "priorityNone": "Aucune",
+    "priorityLow": "Basse",
+    "priorityMedium": "Moyenne",
+    "priorityHigh": "Haute",
+    "due": "Échéance",
+    "assignee": "Assigné",
+    "unassigned": "Non assigné",
+    "notes": "Notes",
+    "notesPlaceholder": "Ajouter des notes...",
+    "tags": "Étiquettes",
+    "newTagPlaceholder": "Nouvelle étiquette...",
+    "add": "Ajouter"
+  },
+  "SubtaskList": {
+    "subtasks": "Sous-tâches",
+    "markComplete": "Marquer la sous-tâche comme terminée",
+    "deleteSubtask": "Supprimer la sous-tâche",
+    "addPlaceholder": "Ajouter une sous-tâche...",
+    "add": "Ajouter"
+  },
+  "QuickAddTask": {
+    "placeholder": "Ajouter une tâche...",
+    "add": "Ajouter"
+  },
+  "CompletedTasksSection": {
+    "completedTasks": "Tâches terminées"
+  },
+  "ActivityFeed": {
+    "loading": "Chargement…",
+    "noActivity": "Aucune activité pour le moment.",
+    "someone": "Quelqu'un",
+    "justNow": "à l'instant",
+    "range": "{start}–{end} sur {total}",
+    "previousPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "pageOf": "Page {page} sur {pageCount}"
+  },
+  "AvatarUploader": {
+    "notAnImage": "Veuillez choisir un fichier image",
+    "canvasNotSupported": "Canvas non pris en charge",
+    "invalidImage": "Cela ne ressemble pas à une image valide",
+    "readFailed": "Échec de la lecture du fichier",
+    "updateFailed": "Échec de la mise à jour de l'avatar",
+    "uploading": "Envoi en cours…",
+    "changePhoto": "Changer la photo",
+    "remove": "Retirer"
+  },
+  "MobileHeader": {
+    "openMenu": "Ouvrir le menu"
+  },
+  "ActivityPage": {
+    "title": "Activité"
+  },
+  "ProfilePage": {
+    "title": "Profil"
+  },
+  "SignInPage": {
+    "redirecting": "Redirection vers la connexion…"
+  }
+}

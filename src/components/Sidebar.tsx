@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useLists } from "@/lib/hooks/useLists";
@@ -15,6 +16,7 @@ import Avatar from "./Avatar";
 import { PencilIcon, GearIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
+  const t = useTranslations("Sidebar");
   const { lists, createList, updateList, deleteList, reorderLists, addMember, removeMember } = useLists();
   const { tags, updateTag, deleteTag } = useTags();
   const { profile } = useProfile();
@@ -57,7 +59,7 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
         <Link
           href="/profile"
           onClick={onClose}
-          aria-label="Profile settings"
+          aria-label={t("profileSettings")}
           className={`shrink-0 rounded p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
             pathname === "/profile" ? "bg-zinc-100 dark:bg-zinc-800" : ""
           }`}
@@ -74,7 +76,7 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
             pathname === "/" ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
           }`}
         >
-          All tasks
+          {t("allTasks")}
         </Link>
         <Link
           href="/activity"
@@ -83,7 +85,7 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
             pathname === "/activity" ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
           }`}
         >
-          Activity
+          {t("activity")}
         </Link>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={items.map((l) => l.id)} strategy={verticalListSortingStrategy}>
@@ -113,14 +115,14 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
         <input
           value={newListName}
           onChange={(e) => setNewListName(e.target.value)}
-          placeholder="New list..."
+          placeholder={t("newListPlaceholder")}
           className="w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700"
         />
       </form>
 
       {tags.length > 0 && (
         <div className="mt-6">
-          <div className="mb-2 px-3 text-xs font-semibold uppercase text-zinc-400">Tags</div>
+          <div className="mb-2 px-3 text-xs font-semibold uppercase text-zinc-400">{t("tags")}</div>
           <div className="flex flex-col gap-0.5">
             {tags.map((tag) => (
               <div key={tag.id}>
@@ -142,7 +144,7 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
                   </Link>
                   <button
                     onClick={() => setOpenTagSettingsId(openTagSettingsId === tag.id ? null : tag.id)}
-                    aria-label={`Edit ${tag.name}`}
+                    aria-label={t("editTag", { name: tag.name })}
                     aria-expanded={openTagSettingsId === tag.id}
                     className="shrink-0 rounded p-1.5 text-amber-500 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
                   >
@@ -173,7 +175,7 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
           href="/api/auth/signout"
           className="block rounded-md px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
         >
-          Sign out
+          {t("signOut")}
         </a>
       </div>
     </div>
