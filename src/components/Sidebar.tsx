@@ -51,22 +51,23 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-4">
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-2 flex items-center gap-2">
         <Avatar name={profile?.name ?? userName} email={profile?.email ?? ""} avatarUrl={profile?.avatarUrl} />
         <span className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-500 dark:text-zinc-400">
           {userName}
         </span>
-        <Link
-          href="/profile"
-          onClick={onClose}
-          aria-label={t("profileSettings")}
-          className={`shrink-0 rounded p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
-            pathname === "/profile" ? "bg-zinc-100 dark:bg-zinc-800" : ""
-          }`}
-        >
-          <GearIcon className="h-4 w-4" />
-        </Link>
       </div>
+
+      <Link
+        href="/profile"
+        onClick={onClose}
+        className={`mb-4 flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${
+          pathname === "/profile" ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+        }`}
+      >
+        <GearIcon className="h-4 w-4" />
+        {t("settings")}
+      </Link>
 
       <nav className="flex flex-col gap-1">
         <Link
