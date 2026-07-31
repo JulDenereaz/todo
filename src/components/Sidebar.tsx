@@ -7,6 +7,7 @@ import { useLists } from "@/lib/hooks/useLists";
 import { useTags } from "@/lib/hooks/useTags";
 import ListSettings from "./ListSettings";
 import TagSettings from "./TagSettings";
+import ThemeToggle from "./ThemeToggle";
 import { PencilIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
@@ -156,7 +157,8 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
         </div>
       )}
 
-      <div className="mt-auto pt-4">
+      <div className="mt-auto flex flex-col gap-2 pt-4">
+        <ThemeToggle />
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- API route, not a Next page; needs a full navigation */}
         <a
           href="/api/auth/signout"

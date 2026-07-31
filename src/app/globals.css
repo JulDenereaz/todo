@@ -1,8 +1,21 @@
 @import "tailwindcss";
 
+/* Switch `dark:` from the default prefers-color-scheme media query to a `.dark`
+   class on <html>, so the theme toggle can override the system preference. The
+   class itself is set by an inline blocking script in layout.tsx (see there for why). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Without this, native popups (<select> options, date pickers, scrollbars) don't
      know the page is dark-themed and render with a light background, which collides
      with the dark-mode text color we inherit into them and makes options unreadable. */
   color-scheme: light dark;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+:root:not(.dark) {
+  color-scheme: light;
 }
