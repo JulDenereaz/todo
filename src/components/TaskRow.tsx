@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { Task } from "@/lib/types";
 import { chipStyle } from "@/lib/colorStyle";
 import { isOverdue } from "@/lib/format";
+import { useConfirm } from "@/lib/hooks/useConfirm";
 import TaskDetailAccordion from "./TaskDetailAccordion";
 import { TrashIcon, ChevronIcon } from "./icons";
 import Checkbox from "./Checkbox";
@@ -40,6 +41,17 @@ export default function TaskRow({
   });
   const style = sortable ? { transform: CSS.Transform.toString(transform), transition } : undefined;
   const doneCount = task.subtasks.filter((s) => s.completed).length;
+  const confirm = useConfirm();
+
+  async function handleDelete() {
+    const ok = await confirm({
+      title: "Delete task",
+      message: `Delete "${task.title}"?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (ok) onDelete(task.id);
+  }
 
   // Keep the accordion mounted once opened so collapsing can animate closed instead of vanishing instantly.
   const [everExpanded, setEverExpanded] = useState(expanded);
@@ -101,7 +113,7 @@ export default function TaskRow({
         )}
 
         <button
-          onClick={() => onDelete(task.id)}
+          onClick={handleDelete}
           className="shrink-0 cursor-pointer rounded p-1.5 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
           aria-label="Delete task"
         >

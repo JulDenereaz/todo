@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { TagRef } from "@/lib/types";
 import { COLOR_SWATCHES } from "@/lib/colorStyle";
+import { useConfirm } from "@/lib/hooks/useConfirm";
 import { TrashIcon } from "./icons";
 
 export default function TagSettings({
@@ -17,11 +18,16 @@ export default function TagSettings({
   onDelete: () => void;
 }) {
   const [nameDraft, setNameDraft] = useState(tag.name);
+  const confirm = useConfirm();
 
-  function handleDelete() {
-    if (window.confirm(`Delete tag "${tag.name}"? It will be removed from all tasks.`)) {
-      onDelete();
-    }
+  async function handleDelete() {
+    const ok = await confirm({
+      title: "Delete tag",
+      message: `Delete tag "${tag.name}"? It will be removed from all tasks.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (ok) onDelete();
   }
 
   return (

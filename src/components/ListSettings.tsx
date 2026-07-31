@@ -5,6 +5,7 @@ import type { List } from "@/lib/types";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { formatUserLabel } from "@/lib/format";
 import { COLOR_SWATCHES } from "@/lib/colorStyle";
+import { useConfirm } from "@/lib/hooks/useConfirm";
 import { TrashIcon } from "./icons";
 
 export default function ListSettings({
@@ -26,6 +27,7 @@ export default function ListSettings({
   const { users } = useUsers();
   const [error, setError] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const confirm = useConfirm();
 
   const availableUsers = users.filter((u) => !list.members.some((m) => m.id === u.id));
 
@@ -41,10 +43,14 @@ export default function ListSettings({
     }
   }
 
-  function handleDelete() {
-    if (window.confirm(`Delete "${list.name}"? This removes all its tasks for every member.`)) {
-      onDelete();
-    }
+  async function handleDelete() {
+    const ok = await confirm({
+      title: "Delete list",
+      message: `Delete "${list.name}"? This removes all its tasks for every member.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (ok) onDelete();
   }
 
   return (
