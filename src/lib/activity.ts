@@ -30,7 +30,7 @@ export function logActivity(params: {
 
 export function getActivityFeed(
   listIds: string[],
-  { limit = 25, offset = 0 }: { limit?: number; offset?: number } = {}
+  { limit = 10, offset = 0 }: { limit?: number; offset?: number } = {}
 ): { entries: ActivityEntry[]; total: number } {
   if (listIds.length === 0) return { entries: [], total: 0 };
 

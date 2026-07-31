@@ -13,7 +13,7 @@ export const GET = withLogging("activity", async (req: NextRequest) => {
   const listId = searchParams.get("listId");
 
   const page = Math.max(1, Number(searchParams.get("page")) || 1);
-  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 25));
+  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 10));
 
   if (listId && !canAccessList(userId, listId)) return badRequest("Invalid listId");
   const scopedListIds = listId ? [listId] : getAccessibleListIds(userId);

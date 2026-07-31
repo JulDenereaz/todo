@@ -2,7 +2,7 @@ import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import type { ActivityPage } from "@/lib/types";
 
-export function useActivity({ page = 1, pageSize = 25 }: { page?: number; pageSize?: number } = {}) {
+export function useActivity({ page = 1, pageSize = 10 }: { page?: number; pageSize?: number } = {}) {
   const { data, error, isLoading, mutate } = useSWR<ActivityPage>(
     `/api/activity?page=${page}&pageSize=${pageSize}`,
     fetcher,
