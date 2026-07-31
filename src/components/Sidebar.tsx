@@ -7,14 +7,17 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type D
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useLists } from "@/lib/hooks/useLists";
 import { useTags } from "@/lib/hooks/useTags";
+import { useProfile } from "@/lib/hooks/useProfile";
 import SidebarListItem from "./SidebarListItem";
 import TagSettings from "./TagSettings";
 import ThemeToggle from "./ThemeToggle";
-import { PencilIcon } from "./icons";
+import Avatar from "./Avatar";
+import { PencilIcon, GearIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
   const { lists, createList, updateList, deleteList, reorderLists, addMember, removeMember } = useLists();
   const { tags, updateTag, deleteTag } = useTags();
+  const { profile } = useProfile();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeTag = searchParams.get("tag");
@@ -46,7 +49,22 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-4">
-      <div className="mb-4 truncate text-sm font-medium text-zinc-500 dark:text-zinc-400">{userName}</div>
+      <div className="mb-4 flex items-center gap-2">
+        <Avatar name={profile?.name ?? userName} email={profile?.email ?? ""} avatarUrl={profile?.avatarUrl} />
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          {userName}
+        </span>
+        <Link
+          href="/profile"
+          onClick={onClose}
+          aria-label="Profile settings"
+          className={`shrink-0 rounded p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
+            pathname === "/profile" ? "bg-zinc-100 dark:bg-zinc-800" : ""
+          }`}
+        >
+          <GearIcon className="h-4 w-4" />
+        </Link>
+      </div>
 
       <nav className="flex flex-col gap-1">
         <Link
