@@ -15,7 +15,7 @@ const DOT_COLOR: Record<ActivityEntry["type"], string> = {
   list_renamed: "bg-zinc-400",
 };
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 10;
 
 export default function ActivityFeed() {
   const [page, setPage] = useState(1);

@@ -4,7 +4,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useEffect, useState } from "react";
 import type { Task } from "@/lib/types";
-import { tagChipStyle } from "@/lib/tagStyle";
+import { chipStyle } from "@/lib/colorStyle";
+import { isOverdue } from "@/lib/format";
 import TaskDetailAccordion from "./TaskDetailAccordion";
 import { TrashIcon, ChevronIcon } from "./icons";
 import Checkbox from "./Checkbox";
@@ -86,22 +87,14 @@ export default function TaskRow({
         )}
 
         {task.dueDate && (
-          <span className="shrink-0 text-xs text-zinc-400">
+          <span
+            className={`shrink-0 text-xs ${
+              isOverdue(task.dueDate, task.completed) ? "font-medium text-red-500 dark:text-red-400" : "text-zinc-400"
+            }`}
+          >
             {new Date(task.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
           </span>
         )}
-
-        {task.tags.slice(0, 2).map((tag) => (
-          <span
-            key={tag.id}
-            className={`hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${
-              !tag.color ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" : ""
-            }`}
-            style={tagChipStyle(tag.color)}
-          >
-            {tag.name}
-          </span>
-        ))}
 
         <button
           onClick={() => onDelete(task.id)}
@@ -128,6 +121,22 @@ export default function TaskRow({
             </li>
           ))}
         </ul>
+      )}
+
+      {task.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-2 pb-3 pl-12">
+          {task.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                !tag.color ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" : ""
+              }`}
+              style={chipStyle(tag.color)}
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
       )}
 
       <div

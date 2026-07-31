@@ -4,17 +4,20 @@ import { useState } from "react";
 import type { List } from "@/lib/types";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { formatUserLabel } from "@/lib/format";
+import { COLOR_SWATCHES } from "@/lib/colorStyle";
 import { TrashIcon } from "./icons";
 
 export default function ListSettings({
   list,
   onRename,
+  onColorChange,
   onDelete,
   onAddMember,
   onRemoveMember,
 }: {
   list: List;
   onRename: (name: string) => void;
+  onColorChange: (color: string | null) => void;
   onDelete: () => void;
   onAddMember: (userId: string) => Promise<void>;
   onRemoveMember: (userId: string) => void;
@@ -62,6 +65,32 @@ export default function ListSettings({
           className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900"
         />
       </label>
+
+      <div>
+        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Color</div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            onClick={() => onColorChange(null)}
+            aria-label="No color"
+            aria-pressed={!list.color}
+            className={`h-5 w-5 rounded-full border-2 bg-zinc-200 dark:bg-zinc-700 ${
+              !list.color ? "border-zinc-900 dark:border-zinc-100" : "border-transparent"
+            }`}
+          />
+          {COLOR_SWATCHES.map((color) => (
+            <button
+              key={color}
+              onClick={() => onColorChange(color)}
+              aria-label={`Set color ${color}`}
+              aria-pressed={list.color === color}
+              className={`h-5 w-5 rounded-full border-2 ${
+                list.color === color ? "border-zinc-900 dark:border-zinc-100" : "border-transparent"
+              }`}
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
+      </div>
 
       <div>
         <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Members</div>

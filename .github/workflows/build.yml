@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Bump version
         if: "!contains(github.event.head_commit.message, '[skip ci]')"
@@ -23,6 +24,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "previous_tag=${PREV_TAG}" >> $GITHUB_OUTPUT
           if echo "${{ github.event.head_commit.message }}" | grep -q "\[minor\]"; then
             npm version minor --no-git-tag-version
           else
@@ -41,9 +44,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          PREV_TAG="${{ steps.bump.outputs.previous_tag }}"
+          RANGE="${PREV_TAG:+${PREV_TAG}..}HEAD"
+          NOTES=$(git log "$RANGE" --no-merges --invert-grep --grep="^chore: bump version" --pretty=format:"- %s (%h)")
+          if [ -z "$NOTES" ]; then
+            NOTES="No notable changes."
+          fi
           gh release create "${{ steps.bump.outputs.version }}" \
             --title "${{ steps.bump.outputs.version }}" \
-            --generate-notes
+            --notes "$NOTES"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

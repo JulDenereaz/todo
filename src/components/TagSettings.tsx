@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { TagRef } from "@/lib/types";
-import { TAG_COLORS } from "@/lib/tagStyle";
+import { COLOR_SWATCHES } from "@/lib/colorStyle";
 import { TrashIcon } from "./icons";
 
 export default function TagSettings({
@@ -54,7 +54,7 @@ export default function TagSettings({
               !tag.color ? "border-zinc-900 dark:border-zinc-100" : "border-transparent"
             }`}
           />
-          {TAG_COLORS.map((color) => (
+          {COLOR_SWATCHES.map((color) => (
             <button
               key={color}
               onClick={() => onColorChange(color)}

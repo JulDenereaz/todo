@@ -11,12 +11,12 @@ export function useLists() {
     return created;
   }
 
-  async function renameList(id: string, name: string) {
+  async function updateList(id: string, patch: { name?: string; color?: string | null }) {
     await mutate(
-      (current) => current?.map((l) => (l.id === id ? { ...l, name } : l)),
+      (current) => current?.map((l) => (l.id === id ? { ...l, ...patch } : l)),
       { revalidate: false }
     );
-    await apiRequest(`/api/lists/${id}`, "PATCH", { name });
+    await apiRequest(`/api/lists/${id}`, "PATCH", patch);
   }
 
   async function deleteList(id: string) {
@@ -60,7 +60,7 @@ export function useLists() {
     error,
     isLoading,
     createList,
-    renameList,
+    updateList,
     deleteList,
     reorderLists,
     addMember,
