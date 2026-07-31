@@ -51,7 +51,11 @@ export default function TaskRow({
     <li
       ref={sortable ? setNodeRef : undefined}
       style={style}
-      className="flex flex-col rounded-md border border-transparent bg-white dark:bg-zinc-900 dark:hover:border-zinc-800 hover:border-zinc-200"
+      className={`flex flex-col rounded-md border bg-white shadow-sm transition-colors dark:bg-zinc-900 dark:shadow-[0_1px_3px_0_rgba(255,255,255,0.06)] ${
+        expanded
+          ? "border-blue-400 ring-1 ring-blue-400/30 dark:border-blue-500 dark:ring-blue-500/30"
+          : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600"
+      }`}
     >
       <div className="group flex items-center gap-3 px-2 py-3">
         {sortable && (
