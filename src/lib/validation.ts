@@ -68,6 +68,11 @@ export const addListMemberSchema = z.object({
   userId: z.string().min(1),
 });
 
+// Generous cap on a client-resized (128px) avatar data URL — bounds worst-case row size, not a hard target.
+export const updateProfileSchema = z.object({
+  avatarUrl: z.string().max(300_000).nullable().optional(),
+});
+
 /** Returns undefined (not provided), null (explicit clear), a Date, or "invalid". */
 export function parseOptionalDueDate(
   value: string | null | undefined

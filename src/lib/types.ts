@@ -12,6 +12,14 @@ export interface UserRef {
   name: string | null;
 }
 
+export interface Profile {
+  id: string;
+  email: string;
+  name: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+}
+
 export interface List {
   id: string;
   userId: string;

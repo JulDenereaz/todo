@@ -36,6 +36,24 @@ export function ChevronIcon({ className, open }: { className?: string; open?: bo
   );
 }
 
+export function GearIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="10" cy="10" r="2.5" />
+      <path d="M10 3v2M10 15v2M17 10h-2M5 10H3M14.83 5.17l-1.41 1.41M6.58 13.41l-1.41 1.41M14.83 14.83l-1.41-1.41M6.58 6.59L5.17 5.17" />
+    </svg>
+  );
+}
+
 export function PencilIcon({ className }: { className?: string }) {
   return (
     <svg

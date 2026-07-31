@@ -4,6 +4,8 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(), // OIDC `sub`
   email: text("email").notNull(),
   name: text("name"),
+  // Data URL of a small (client-resized) image, not a file path — see AvatarUploader.
+  avatarUrl: text("avatar_url"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
