@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { tagChipStyle } from "@/lib/tagStyle";
 import type { Task } from "@/lib/types";
 import TaskDetailAccordion from "./TaskDetailAccordion";
 import { TrashIcon, ChevronIcon } from "./icons";
@@ -86,7 +87,10 @@ export default function TaskRow({
         {task.tags.slice(0, 2).map((tag) => (
           <span
             key={tag.id}
-            className="hidden shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 sm:inline"
+            className={`hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${
+              !tag.color ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" : ""
+            }`}
+            style={tagChipStyle(tag.color)}
           >
             {tag.name}
           </span>

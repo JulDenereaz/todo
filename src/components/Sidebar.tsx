@@ -6,16 +6,18 @@ import { Suspense, useState } from "react";
 import { useLists } from "@/lib/hooks/useLists";
 import { useTags } from "@/lib/hooks/useTags";
 import ListSettings from "./ListSettings";
+import TagSettings from "./TagSettings";
 import { PencilIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
   const { lists, createList, renameList, deleteList, addMember, removeMember } = useLists();
-  const { tags } = useTags();
+  const { tags, updateTag, deleteTag } = useTags();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeTag = searchParams.get("tag");
   const [newListName, setNewListName] = useState("");
   const [openSettingsId, setOpenSettingsId] = useState<string | null>(null);
+  const [openTagSettingsId, setOpenTagSettingsId] = useState<string | null>(null);
 
   async function handleCreateList(e: React.FormEvent) {
     e.preventDefault();
@@ -98,20 +100,46 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
       {tags.length > 0 && (
         <div className="mt-6">
           <div className="mb-2 px-3 text-xs font-semibold uppercase text-zinc-400">Tags</div>
-          <div className="flex flex-wrap gap-1.5 px-3">
+          <div className="flex flex-col gap-0.5">
             {tags.map((tag) => (
-              <Link
-                key={tag.id}
-                href={activeTag === tag.id ? pathname : `${pathname}?tag=${tag.id}`}
-                onClick={onClose}
-                className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                  activeTag === tag.id
-                    ? "bg-blue-600 text-white"
-                    : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                }`}
-              >
-                {tag.name}
-              </Link>
+              <div key={tag.id}>
+                <div
+                  className={`flex items-center gap-1 rounded-md pr-1 ${
+                    activeTag === tag.id ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  <Link
+                    href={activeTag === tag.id ? pathname : `${pathname}?tag=${tag.id}`}
+                    onClick={onClose}
+                    className="flex flex-1 items-center gap-2 truncate px-3 py-1.5 text-sm"
+                  >
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: tag.color ?? "#a1a1aa" }}
+                    />
+                    <span className="truncate">{tag.name}</span>
+                  </Link>
+                  <button
+                    onClick={() => setOpenTagSettingsId(openTagSettingsId === tag.id ? null : tag.id)}
+                    aria-label={`Edit ${tag.name}`}
+                    aria-expanded={openTagSettingsId === tag.id}
+                    className="shrink-0 rounded p-1.5 text-amber-500 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                </div>
+                {openTagSettingsId === tag.id && (
+                  <TagSettings
+                    tag={tag}
+                    onRename={(name) => updateTag(tag.id, { name })}
+                    onColorChange={(color) => updateTag(tag.id, { color })}
+                    onDelete={() => {
+                      setOpenTagSettingsId(null);
+                      deleteTag(tag.id);
+                    }}
+                  />
+                )}
+              </div>
             ))}
           </div>
         </div>

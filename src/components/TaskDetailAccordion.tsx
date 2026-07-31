@@ -6,6 +6,7 @@ import { useTags } from "@/lib/hooks/useTags";
 import { useLists } from "@/lib/hooks/useLists";
 import SubtaskList from "./SubtaskList";
 import { formatUserLabel } from "@/lib/format";
+import { tagChipStyle } from "@/lib/tagStyle";
 import type { Priority } from "@/lib/types";
 
 export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
@@ -111,7 +112,10 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
             <button
               key={tag.id}
               onClick={() => removeTag(tag.id)}
-              className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+              className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                !tag.color ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : ""
+              }`}
+              style={tagChipStyle(tag.color)}
             >
               {tag.name} ✕
             </button>
@@ -120,9 +124,10 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
             <button
               key={tag.id}
               onClick={() => addTag(tag.id)}
-              className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+              className="flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
             >
-              + {tag.name}
+              {tag.color && <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: tag.color }} />}
+              {`+ ${tag.name}`}
             </button>
           ))}
         </div>
