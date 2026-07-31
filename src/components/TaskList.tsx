@@ -30,7 +30,7 @@ export default function TaskList({
 
   if (!onReorder) {
     return (
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-2">
         {tasks.map((task) => (
           <TaskRow
             key={task.id}
@@ -61,7 +61,7 @@ export default function TaskList({
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={items.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-2">
           {items.map((task) => (
             <TaskRow
               key={task.id}
