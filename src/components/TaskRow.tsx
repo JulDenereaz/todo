@@ -91,18 +91,6 @@ export default function TaskRow({
           </span>
         )}
 
-        {task.tags.slice(0, 2).map((tag) => (
-          <span
-            key={tag.id}
-            className={`hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${
-              !tag.color ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" : ""
-            }`}
-            style={tagChipStyle(tag.color)}
-          >
-            {tag.name}
-          </span>
-        ))}
-
         <button
           onClick={() => onDelete(task.id)}
           className="shrink-0 cursor-pointer rounded p-1.5 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
@@ -128,6 +116,22 @@ export default function TaskRow({
             </li>
           ))}
         </ul>
+      )}
+
+      {task.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-2 pb-3 pl-12">
+          {task.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                !tag.color ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" : ""
+              }`}
+              style={tagChipStyle(tag.color)}
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
       )}
 
       <div
