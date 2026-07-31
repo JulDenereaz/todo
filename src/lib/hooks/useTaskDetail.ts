@@ -70,13 +70,15 @@ export function useTaskDetail(taskId: string | null) {
   async function addTag(tagId: string) {
     if (!taskId) return;
     await apiRequest(`/api/tasks/${taskId}/tags`, "POST", { tagId });
-    await mutate();
+    const updated = await mutate();
+    if (updated) syncListCaches((t) => ({ ...t, tags: updated.tags }));
   }
 
   async function removeTag(tagId: string) {
     if (!taskId) return;
     await apiRequest(`/api/tasks/${taskId}/tags`, "DELETE", { tagId });
-    await mutate();
+    const updated = await mutate();
+    if (updated) syncListCaches((t) => ({ ...t, tags: updated.tags }));
   }
 
   return {
