@@ -26,7 +26,7 @@
     "confirm": "Confirm"
   },
   "Sidebar": {
-    "profileSettings": "Profile settings",
+    "settings": "Settings",
     "allTasks": "All tasks",
     "activity": "Activity",
     "newListPlaceholder": "New list...",
