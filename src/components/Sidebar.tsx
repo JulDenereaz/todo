@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useLists } from "@/lib/hooks/useLists";
 import { useTags } from "@/lib/hooks/useTags";
-import ListSettings from "./ListSettings";
+import SidebarListItem from "./SidebarListItem";
 import TagSettings from "./TagSettings";
 import ThemeToggle from "./ThemeToggle";
 import { PencilIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
-  const { lists, createList, updateList, deleteList, addMember, removeMember } = useLists();
+  const { lists, createList, updateList, deleteList, reorderLists, addMember, removeMember } = useLists();
   const { tags, updateTag, deleteTag } = useTags();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -19,6 +21,20 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
   const [newListName, setNewListName] = useState("");
   const [openSettingsId, setOpenSettingsId] = useState<string | null>(null);
   const [openTagSettingsId, setOpenTagSettingsId] = useState<string | null>(null);
+
+  const [items, setItems] = useState(lists);
+  useEffect(() => setItems(lists), [lists]);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex((l) => l.id === active.id);
+    const newIndex = items.findIndex((l) => l.id === over.id);
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    setItems(reordered);
+    reorderLists(reordered.map((l, i) => ({ id: l.id, position: i })));
+  }
 
   async function handleCreateList(e: React.FormEvent) {
     e.preventDefault();
@@ -51,41 +67,16 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
         >
           Activity
         </Link>
-        {lists.map((list) => (
-          <div key={list.id}>
-            <div
-              className={`flex items-center gap-1 rounded-md pr-1 ${
-                pathname === `/lists/${list.id}` ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              }`}
-            >
-              <Link
-                href={`/lists/${list.id}`}
-                onClick={onClose}
-                className="flex flex-1 items-center gap-2 truncate px-3 py-2 text-sm font-medium"
-              >
-                <span
-                  className="h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: list.color ?? "#a1a1aa" }}
-                />
-                <span className="truncate">
-                  {list.name}
-                  {list.members.length > 1 && (
-                    <span className="ml-1.5 text-xs font-normal text-zinc-400">{list.members.length}</span>
-                  )}
-                </span>
-              </Link>
-              <button
-                onClick={() => setOpenSettingsId(openSettingsId === list.id ? null : list.id)}
-                aria-label={`Edit ${list.name}`}
-                aria-expanded={openSettingsId === list.id}
-                className="shrink-0 rounded p-1.5 text-amber-500 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
-              >
-                <PencilIcon className="h-4 w-4" />
-              </button>
-            </div>
-            {openSettingsId === list.id && (
-              <ListSettings
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={items.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+            {items.map((list) => (
+              <SidebarListItem
+                key={list.id}
                 list={list}
+                active={pathname === `/lists/${list.id}`}
+                settingsOpen={openSettingsId === list.id}
+                onToggleSettings={() => setOpenSettingsId(openSettingsId === list.id ? null : list.id)}
+                onClose={onClose}
                 onRename={(name) => updateList(list.id, { name })}
                 onColorChange={(color) => updateList(list.id, { color })}
                 onDelete={() => {
@@ -95,9 +86,9 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
                 onAddMember={(email) => addMember(list.id, email)}
                 onRemoveMember={(userId) => removeMember(list.id, userId)}
               />
-            )}
-          </div>
-        ))}
+            ))}
+          </SortableContext>
+        </DndContext>
       </nav>
 
       <form onSubmit={handleCreateList} className="mt-2">
