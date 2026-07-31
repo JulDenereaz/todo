@@ -1,10 +1,20 @@
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
-import type { ActivityEntry } from "@/lib/types";
+import type { ActivityPage } from "@/lib/types";
 
-export function useActivity() {
-  const { data, error, isLoading, mutate } = useSWR<ActivityEntry[]>("/api/activity", fetcher, {
-    refreshInterval: 30_000,
-  });
-  return { activity: data ?? [], error, isLoading, mutate };
+export function useActivity({ page = 1, pageSize = 25 }: { page?: number; pageSize?: number } = {}) {
+  const { data, error, isLoading, mutate } = useSWR<ActivityPage>(
+    `/api/activity?page=${page}&pageSize=${pageSize}`,
+    fetcher,
+    { refreshInterval: 30_000 }
+  );
+  return {
+    activity: data?.entries ?? [],
+    total: data?.total ?? 0,
+    page,
+    pageSize,
+    error,
+    isLoading,
+    mutate,
+  };
 }

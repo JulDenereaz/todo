@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { activity, lists, users } from "@/db/schema";
 import type { ActivityEntry, ActivityType, UserRef } from "@/lib/types";
@@ -28,8 +28,17 @@ export function logActivity(params: {
     .run();
 }
 
-export function getActivityFeed(listIds: string[], limit = 100): ActivityEntry[] {
-  if (listIds.length === 0) return [];
+export function getActivityFeed(
+  listIds: string[],
+  { limit = 25, offset = 0 }: { limit?: number; offset?: number } = {}
+): { entries: ActivityEntry[]; total: number } {
+  if (listIds.length === 0) return { entries: [], total: 0 };
+
+  const [{ count }] = db
+    .select({ count: sql<number>`count(*)` })
+    .from(activity)
+    .where(inArray(activity.listId, listIds))
+    .all();
 
   const rows = db
     .select({
@@ -50,9 +59,10 @@ export function getActivityFeed(listIds: string[], limit = 100): ActivityEntry[]
     .where(inArray(activity.listId, listIds))
     .orderBy(desc(activity.createdAt))
     .limit(limit)
+    .offset(offset)
     .all();
 
-  return rows.map((r) => ({
+  const entries = rows.map((r) => ({
     id: r.id,
     listId: r.listId,
     listName: r.listName,
@@ -62,4 +72,6 @@ export function getActivityFeed(listIds: string[], limit = 100): ActivityEntry[]
     actor: r.actorId ? { id: r.actorId, email: r.actorEmail as string, name: r.actorName } : null,
     createdAt: r.createdAt.toISOString(),
   }));
+
+  return { entries, total: count };
 }

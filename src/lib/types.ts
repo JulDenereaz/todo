@@ -72,3 +72,10 @@ export interface ActivityEntry {
   actor: UserRef | null;
   createdAt: string;
 }
+
+export interface ActivityPage {
+  entries: ActivityEntry[];
+  total: number;
+  page: number;
+  pageSize: number;
+}

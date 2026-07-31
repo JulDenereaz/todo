@@ -12,9 +12,13 @@ export const GET = withLogging("activity", async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
   const listId = searchParams.get("listId");
 
+  const page = Math.max(1, Number(searchParams.get("page")) || 1);
+  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 25));
+
   if (listId && !canAccessList(userId, listId)) return badRequest("Invalid listId");
   const scopedListIds = listId ? [listId] : getAccessibleListIds(userId);
-  if (scopedListIds.length === 0) return NextResponse.json([]);
+  if (scopedListIds.length === 0) return NextResponse.json({ entries: [], total: 0, page, pageSize });
 
-  return NextResponse.json(getActivityFeed(scopedListIds));
+  const { entries, total } = getActivityFeed(scopedListIds, { limit: pageSize, offset: (page - 1) * pageSize });
+  return NextResponse.json({ entries, total, page, pageSize });
 });
