@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useLists } from "@/lib/hooks/useLists";
 import { useTasks } from "@/lib/hooks/useTasks";
 import type { Task } from "@/lib/types";
@@ -29,6 +30,7 @@ function sortByOption(list: Task[], sortBy: SortOption) {
 }
 
 export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: string }) {
+  const t = useTranslations("TaskBoard");
   const { lists } = useLists();
   const { tasks, isLoading, createTask, toggleComplete, deleteTask, reorderTasks, toggleSubtask } = useTasks({
     listId,
@@ -43,7 +45,7 @@ export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: 
   const [assigneeFilter, setAssigneeFilter] = useState("any");
 
   const activeList = listId ? lists.find((l) => l.id === listId) : undefined;
-  const title = listId ? (activeList?.name ?? "List") : "All tasks";
+  const title = listId ? (activeList?.name ?? t("list")) : t("allTasks");
   const defaultListId = listId ?? lists[0]?.id;
 
   const query = search.trim().toLowerCase();
@@ -102,29 +104,29 @@ export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: 
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search tasks..."
+          placeholder={t("searchPlaceholder")}
           className="flex-1 rounded-md border border-zinc-200 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700"
         />
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as SortOption)}
           className="shrink-0 rounded-md border border-zinc-200 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
-          aria-label="Sort tasks"
+          aria-label={t("sortTasks")}
         >
-          <option value="manual">Manual order</option>
-          <option value="dueDate">Due date</option>
-          <option value="priority">Priority</option>
-          <option value="alpha">Alphabetical</option>
+          <option value="manual">{t("sortManual")}</option>
+          <option value="dueDate">{t("sortDueDate")}</option>
+          <option value="priority">{t("sortPriority")}</option>
+          <option value="alpha">{t("sortAlpha")}</option>
         </select>
         {assigneeOptions.length > 0 && (
           <select
             value={assigneeFilter}
             onChange={(e) => setAssigneeFilter(e.target.value)}
             className="shrink-0 rounded-md border border-zinc-200 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
-            aria-label="Filter by assignee"
+            aria-label={t("filterByAssignee")}
           >
-            <option value="any">Anyone</option>
-            <option value="unassigned">Unassigned</option>
+            <option value="any">{t("assigneeAnyone")}</option>
+            <option value="unassigned">{t("assigneeUnassigned")}</option>
             {assigneeOptions.map(([id, label]) => (
               <option key={id} value={id}>
                 {label}
@@ -135,9 +137,9 @@ export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: 
       </div>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-zinc-400">Loading…</p>
+        <p className="mt-6 text-sm text-zinc-400">{t("loading")}</p>
       ) : tasks.length === 0 ? (
-        <p className="mt-6 text-sm text-zinc-400">No tasks yet.</p>
+        <p className="mt-6 text-sm text-zinc-400">{t("noTasksYet")}</p>
       ) : (
         <>
           {activeTasks.length > 0 ? (
@@ -152,7 +154,7 @@ export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: 
             />
           ) : (
             <p className="mt-6 text-sm text-zinc-400">
-              {hasActiveFilter ? "No tasks match your filters." : "No active tasks."}
+              {hasActiveFilter ? t("noMatches") : t("noActiveTasks")}
             </p>
           )}
 

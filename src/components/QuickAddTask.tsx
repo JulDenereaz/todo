@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Task } from "@/lib/types";
 
 export default function QuickAddTask({
@@ -10,6 +11,7 @@ export default function QuickAddTask({
   listId: string;
   onCreate: (input: { listId: string; title: string }) => Promise<Task>;
 }) {
+  const t = useTranslations("QuickAddTask");
   const [title, setTitle] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -31,7 +33,7 @@ export default function QuickAddTask({
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Add a task..."
+        placeholder={t("placeholder")}
         className="flex-1 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900"
       />
       <button
@@ -39,7 +41,7 @@ export default function QuickAddTask({
         disabled={submitting}
         className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
       >
-        Add
+        {t("add")}
       </button>
     </form>
   );

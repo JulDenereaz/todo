@@ -3,6 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import type { Task } from "@/lib/types";
 import { chipStyle } from "@/lib/colorStyle";
 import { isOverdue } from "@/lib/format";
@@ -42,12 +43,14 @@ export default function TaskRow({
   const style = sortable ? { transform: CSS.Transform.toString(transform), transition } : undefined;
   const doneCount = task.subtasks.filter((s) => s.completed).length;
   const confirm = useConfirm();
+  const t = useTranslations("TaskRow");
+  const locale = useLocale();
 
   async function handleDelete() {
     const ok = await confirm({
-      title: "Delete task",
-      message: `Delete "${task.title}"?`,
-      confirmLabel: "Delete",
+      title: t("deleteConfirmTitle"),
+      message: t("deleteConfirmMessage", { title: task.title }),
+      confirmLabel: t("deleteConfirmLabel"),
       variant: "danger",
     });
     if (ok) onDelete(task.id);
@@ -75,13 +78,13 @@ export default function TaskRow({
             {...attributes}
             {...listeners}
             className="cursor-grab touch-none px-1 text-zinc-300 dark:text-zinc-600"
-            aria-label="Drag to reorder"
+            aria-label={t("dragToReorder")}
           >
             ⠿
           </button>
         )}
 
-        <Checkbox checked={task.completed} onChange={() => onToggle(task)} aria-label="Mark task complete" />
+        <Checkbox checked={task.completed} onChange={() => onToggle(task)} aria-label={t("markComplete")} />
 
         {task.priority !== "none" && (
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: PRIORITY_COLOR[task.priority] }} />
@@ -108,14 +111,14 @@ export default function TaskRow({
               isOverdue(task.dueDate, task.completed) ? "font-medium text-red-500 dark:text-red-400" : "text-zinc-400"
             }`}
           >
-            {new Date(task.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+            {new Date(task.dueDate).toLocaleDateString(locale, { month: "short", day: "numeric" })}
           </span>
         )}
 
         <button
           onClick={handleDelete}
           className="shrink-0 cursor-pointer rounded p-1.5 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
-          aria-label="Delete task"
+          aria-label={t("deleteTask")}
         >
           <TrashIcon className="h-4 w-4" />
         </button>
@@ -129,7 +132,7 @@ export default function TaskRow({
                 size="sm"
                 checked={s.completed}
                 onChange={() => onToggleSubtask(task.id, s.id, !s.completed)}
-                aria-label="Mark subtask complete"
+                aria-label={t("markSubtaskComplete")}
               />
               <span className={`truncate text-sm ${s.completed ? "text-zinc-400 line-through" : "text-zinc-600 dark:text-zinc-300"}`}>
                 {s.title}

@@ -3,8 +3,10 @@
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 function SignInInner() {
+  const t = useTranslations("SignInPage");
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
@@ -14,7 +16,7 @@ function SignInInner() {
 
   return (
     <div className="flex h-full items-center justify-center text-sm text-zinc-400">
-      Redirecting to sign in…
+      {t("redirecting")}
     </div>
   );
 }

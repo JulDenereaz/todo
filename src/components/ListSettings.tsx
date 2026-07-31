@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { List } from "@/lib/types";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { formatUserLabel } from "@/lib/format";
@@ -23,6 +24,7 @@ export default function ListSettings({
   onAddMember: (userId: string) => Promise<void>;
   onRemoveMember: (userId: string) => void;
 }) {
+  const t = useTranslations("ListSettings");
   const [nameDraft, setNameDraft] = useState(list.name);
   const { users } = useUsers();
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function ListSettings({
     try {
       await onAddMember(userId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add member");
+      setError(err instanceof Error ? err.message : t("addMemberFailed"));
     } finally {
       setAddingId(null);
     }
@@ -45,9 +47,9 @@ export default function ListSettings({
 
   async function handleDelete() {
     const ok = await confirm({
-      title: "Delete list",
-      message: `Delete "${list.name}"? This removes all its tasks for every member.`,
-      confirmLabel: "Delete",
+      title: t("deleteConfirmTitle"),
+      message: t("deleteConfirmMessage", { name: list.name }),
+      confirmLabel: t("deleteConfirmLabel"),
       variant: "danger",
     });
     if (ok) onDelete();
@@ -59,7 +61,7 @@ export default function ListSettings({
       onClick={(e) => e.stopPropagation()}
     >
       <label className="flex flex-col gap-1">
-        <span className="text-xs font-semibold uppercase text-zinc-400">Name</span>
+        <span className="text-xs font-semibold uppercase text-zinc-400">{t("name")}</span>
         <input
           value={nameDraft}
           onChange={(e) => setNameDraft(e.target.value)}
@@ -73,11 +75,11 @@ export default function ListSettings({
       </label>
 
       <div>
-        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Color</div>
+        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">{t("color")}</div>
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => onColorChange(null)}
-            aria-label="No color"
+            aria-label={t("noColor")}
             aria-pressed={!list.color}
             className={`h-5 w-5 rounded-full border-2 bg-zinc-200 dark:bg-zinc-700 ${
               !list.color ? "border-zinc-900 dark:border-zinc-100" : "border-transparent"
@@ -87,7 +89,7 @@ export default function ListSettings({
             <button
               key={color}
               onClick={() => onColorChange(color)}
-              aria-label={`Set color ${color}`}
+              aria-label={t("setColor", { color })}
               aria-pressed={list.color === color}
               className={`h-5 w-5 rounded-full border-2 ${
                 list.color === color ? "border-zinc-900 dark:border-zinc-100" : "border-transparent"
@@ -99,18 +101,18 @@ export default function ListSettings({
       </div>
 
       <div>
-        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">Members</div>
+        <div className="mb-1.5 text-xs font-semibold uppercase text-zinc-400">{t("members")}</div>
         <ul className="flex flex-col gap-1">
           {list.members.map((member) => (
             <li key={member.id} className="flex items-center justify-between gap-2">
               <span className="truncate text-zinc-600 dark:text-zinc-300">{formatUserLabel(member)}</span>
               {member.id === list.userId ? (
-                <span className="shrink-0 text-xs text-zinc-400">Owner</span>
+                <span className="shrink-0 text-xs text-zinc-400">{t("owner")}</span>
               ) : (
                 <button
                   onClick={() => onRemoveMember(member.id)}
                   className="shrink-0 cursor-pointer rounded p-1 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
-                  aria-label={`Remove ${formatUserLabel(member)}`}
+                  aria-label={t("removeMember", { name: formatUserLabel(member) })}
                 >
                   <TrashIcon className="h-3.5 w-3.5" />
                 </button>
@@ -141,7 +143,7 @@ export default function ListSettings({
         className="flex cursor-pointer items-center gap-1.5 self-start rounded-md p-1.5 text-xs font-medium text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
       >
         <TrashIcon className="h-3.5 w-3.5" />
-        Delete list
+        {t("deleteList")}
       </button>
     </div>
   );

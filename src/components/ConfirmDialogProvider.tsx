@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ConfirmContext, type ConfirmOptions } from "@/lib/hooks/useConfirm";
 
 export default function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("ConfirmDialog");
   const [pending, setPending] = useState<{ options: ConfirmOptions; resolve: (value: boolean) => void } | null>(
     null
   );
@@ -55,7 +57,7 @@ export default function ConfirmDialogProvider({ children }: { children: React.Re
                 onClick={() => close(false)}
                 className="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
-                {pending.options.cancelLabel ?? "Cancel"}
+                {pending.options.cancelLabel ?? t("cancel")}
               </button>
               <button
                 onClick={() => close(true)}
@@ -66,7 +68,7 @@ export default function ConfirmDialogProvider({ children }: { children: React.Re
                     : "bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                 }`}
               >
-                {pending.options.confirmLabel ?? "Confirm"}
+                {pending.options.confirmLabel ?? t("confirm")}
               </button>
             </div>
           </div>
