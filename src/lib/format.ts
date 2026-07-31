@@ -8,6 +8,12 @@ export function formatUserLabel(user: UserRef): string {
   return "Unknown user";
 }
 
+/** A due date is overdue once its calendar day has passed and the task isn't done yet. */
+export function isOverdue(dueDate: string | null, completed: boolean): boolean {
+  if (!dueDate || completed) return false;
+  return dueDate.slice(0, 10) < new Date().toISOString().slice(0, 10);
+}
+
 const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["year", 31536000],
   ["month", 2592000],

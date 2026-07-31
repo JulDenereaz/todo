@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useEffect, useState } from "react";
 import type { Task } from "@/lib/types";
 import { chipStyle } from "@/lib/colorStyle";
+import { isOverdue } from "@/lib/format";
 import TaskDetailAccordion from "./TaskDetailAccordion";
 import { TrashIcon, ChevronIcon } from "./icons";
 import Checkbox from "./Checkbox";
@@ -86,7 +87,11 @@ export default function TaskRow({
         )}
 
         {task.dueDate && (
-          <span className="shrink-0 text-xs text-zinc-400">
+          <span
+            className={`shrink-0 text-xs ${
+              isOverdue(task.dueDate, task.completed) ? "font-medium text-red-500 dark:text-red-400" : "text-zinc-400"
+            }`}
+          >
             {new Date(task.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
           </span>
         )}
