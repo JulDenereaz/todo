@@ -10,7 +10,7 @@ import TagSettings from "./TagSettings";
 import { PencilIcon } from "./icons";
 
 function SidebarInner({ onClose, userName }: { onClose: () => void; userName: string }) {
-  const { lists, createList, renameList, deleteList, addMember, removeMember } = useLists();
+  const { lists, createList, updateList, deleteList, addMember, removeMember } = useLists();
   const { tags, updateTag, deleteTag } = useTags();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -57,11 +57,21 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
                 pathname === `/lists/${list.id}` ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
-              <Link href={`/lists/${list.id}`} onClick={onClose} className="flex-1 truncate px-3 py-2 text-sm font-medium">
-                {list.name}
-                {list.members.length > 1 && (
-                  <span className="ml-1.5 text-xs font-normal text-zinc-400">{list.members.length}</span>
-                )}
+              <Link
+                href={`/lists/${list.id}`}
+                onClick={onClose}
+                className="flex flex-1 items-center gap-2 truncate px-3 py-2 text-sm font-medium"
+              >
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: list.color ?? "#a1a1aa" }}
+                />
+                <span className="truncate">
+                  {list.name}
+                  {list.members.length > 1 && (
+                    <span className="ml-1.5 text-xs font-normal text-zinc-400">{list.members.length}</span>
+                  )}
+                </span>
               </Link>
               <button
                 onClick={() => setOpenSettingsId(openSettingsId === list.id ? null : list.id)}
@@ -75,7 +85,8 @@ function SidebarInner({ onClose, userName }: { onClose: () => void; userName: st
             {openSettingsId === list.id && (
               <ListSettings
                 list={list}
-                onRename={(name) => renameList(list.id, name)}
+                onRename={(name) => updateList(list.id, { name })}
+                onColorChange={(color) => updateList(list.id, { color })}
                 onDelete={() => {
                   setOpenSettingsId(null);
                   deleteList(list.id);

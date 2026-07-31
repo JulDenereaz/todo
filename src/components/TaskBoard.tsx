@@ -19,7 +19,8 @@ export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: 
   const searchParams = useSearchParams();
   const expandedTaskId = searchParams.get("task");
 
-  const title = listId ? (lists.find((l) => l.id === listId)?.name ?? "List") : "All tasks";
+  const activeList = listId ? lists.find((l) => l.id === listId) : undefined;
+  const title = listId ? (activeList?.name ?? "List") : "All tasks";
   const defaultListId = listId ?? lists[0]?.id;
 
   const activeTasks = useMemo(
@@ -44,7 +45,10 @@ export default function TaskBoard({ listId, tagId }: { listId?: string; tagId?: 
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
-      <h1 className="mb-4 text-xl font-semibold">{title}</h1>
+      <h1 className="mb-4 flex items-center gap-2 text-xl font-semibold">
+        {activeList?.color && <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: activeList.color }} />}
+        {title}
+      </h1>
 
       {defaultListId && <QuickAddTask listId={defaultListId} onCreate={createTask} />}
 

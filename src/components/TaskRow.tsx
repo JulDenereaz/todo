@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useEffect, useState } from "react";
 import type { Task } from "@/lib/types";
-import { tagChipStyle } from "@/lib/tagStyle";
+import { chipStyle } from "@/lib/colorStyle";
 import TaskDetailAccordion from "./TaskDetailAccordion";
 import { TrashIcon, ChevronIcon } from "./icons";
 import Checkbox from "./Checkbox";
@@ -126,7 +126,7 @@ export default function TaskRow({
               className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                 !tag.color ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" : ""
               }`}
-              style={tagChipStyle(tag.color)}
+              style={chipStyle(tag.color)}
             >
               {tag.name}
             </span>

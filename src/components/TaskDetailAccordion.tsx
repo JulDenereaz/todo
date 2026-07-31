@@ -6,7 +6,7 @@ import { useTags } from "@/lib/hooks/useTags";
 import { useLists } from "@/lib/hooks/useLists";
 import SubtaskList from "./SubtaskList";
 import { formatUserLabel } from "@/lib/format";
-import { tagChipStyle } from "@/lib/tagStyle";
+import { chipStyle } from "@/lib/colorStyle";
 import type { Priority } from "@/lib/types";
 
 export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
@@ -115,7 +115,7 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
               className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                 !tag.color ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : ""
               }`}
-              style={tagChipStyle(tag.color)}
+              style={chipStyle(tag.color)}
             >
               {tag.name} ✕
             </button>
