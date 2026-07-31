@@ -2,7 +2,9 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useEffect, useState } from "react";
 import type { Task } from "@/lib/types";
+import { tagChipStyle } from "@/lib/tagStyle";
 import TaskDetailAccordion from "./TaskDetailAccordion";
 import { TrashIcon, ChevronIcon } from "./icons";
 import Checkbox from "./Checkbox";
@@ -38,6 +40,12 @@ export default function TaskRow({
   const style = sortable ? { transform: CSS.Transform.toString(transform), transition } : undefined;
   const doneCount = task.subtasks.filter((s) => s.completed).length;
 
+  // Keep the accordion mounted once opened so collapsing can animate closed instead of vanishing instantly.
+  const [everExpanded, setEverExpanded] = useState(expanded);
+  useEffect(() => {
+    if (expanded) setEverExpanded(true);
+  }, [expanded]);
+
   return (
     <li
       ref={sortable ? setNodeRef : undefined}
@@ -67,7 +75,7 @@ export default function TaskRow({
           className={`flex flex-1 items-center gap-1.5 truncate text-left text-lg font-semibold ${task.completed ? "text-zinc-400 line-through" : ""}`}
           aria-expanded={expanded}
         >
-          <ChevronIcon open={expanded} className="h-4 w-4 shrink-0 text-zinc-400" />
+          <ChevronIcon open={expanded} className="h-5 w-5 shrink-0 stroke-2 text-zinc-500 dark:text-zinc-300" />
           <span className="truncate">{task.title}</span>
         </button>
 
@@ -86,7 +94,10 @@ export default function TaskRow({
         {task.tags.slice(0, 2).map((tag) => (
           <span
             key={tag.id}
-            className="hidden shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 sm:inline"
+            className={`hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${
+              !tag.color ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" : ""
+            }`}
+            style={tagChipStyle(tag.color)}
           >
             {tag.name}
           </span>
@@ -94,7 +105,7 @@ export default function TaskRow({
 
         <button
           onClick={() => onDelete(task.id)}
-          className="shrink-0 rounded p-1.5 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+          className="shrink-0 cursor-pointer rounded p-1.5 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
           aria-label="Delete task"
         >
           <TrashIcon className="h-4 w-4" />
@@ -119,7 +130,11 @@ export default function TaskRow({
         </ul>
       )}
 
-      {expanded && <TaskDetailAccordion taskId={task.id} />}
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+      >
+        <div className="overflow-hidden">{everExpanded && <TaskDetailAccordion taskId={task.id} />}</div>
+      </div>
     </li>
   );
 }
