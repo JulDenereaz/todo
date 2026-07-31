@@ -41,7 +41,7 @@ export default function SubtaskList({
             <span className={`flex-1 ${s.completed ? "text-zinc-400 line-through" : ""}`}>{s.title}</span>
             <button
               onClick={() => onDelete(s.id)}
-              className="shrink-0 rounded p-1 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+              className="shrink-0 cursor-pointer rounded p-1 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
               aria-label="Delete subtask"
             >
               <TrashIcon className="h-3.5 w-3.5" />

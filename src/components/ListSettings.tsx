@@ -74,7 +74,7 @@ export default function ListSettings({
               ) : (
                 <button
                   onClick={() => onRemoveMember(member.id)}
-                  className="shrink-0 rounded p-1 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                  className="shrink-0 cursor-pointer rounded p-1 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
                   aria-label={`Remove ${formatUserLabel(member)}`}
                 >
                   <TrashIcon className="h-3.5 w-3.5" />
@@ -103,7 +103,7 @@ export default function ListSettings({
 
       <button
         onClick={handleDelete}
-        className="flex items-center gap-1.5 self-start rounded-md p-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+        className="flex cursor-pointer items-center gap-1.5 self-start rounded-md p-1.5 text-xs font-medium text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300"
       >
         <TrashIcon className="h-3.5 w-3.5" />
         Delete list
