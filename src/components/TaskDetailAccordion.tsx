@@ -6,17 +6,30 @@ import { useTaskDetail } from "@/lib/hooks/useTaskDetail";
 import { useTags } from "@/lib/hooks/useTags";
 import { useLists } from "@/lib/hooks/useLists";
 import SubtaskList from "./SubtaskList";
+import AttachmentList from "./AttachmentList";
 import { formatUserLabel } from "@/lib/format";
 import { chipStyle } from "@/lib/colorStyle";
+import { resizeImageForAttachment } from "@/lib/attachmentImage";
 import type { Priority } from "@/lib/types";
 
 export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
   const t = useTranslations("TaskDetailAccordion");
-  const { task, update, addSubtask, toggleSubtask, deleteSubtask, addTag, removeTag } = useTaskDetail(taskId);
+  const {
+    task,
+    update,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
+    addTag,
+    removeTag,
+    addAttachment,
+    removeAttachment,
+  } = useTaskDetail(taskId);
   const { tags, createTag } = useTags();
   const { lists } = useLists();
   const [notesDraft, setNotesDraft] = useState<string | null>(null);
   const [newTagName, setNewTagName] = useState("");
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
 
   if (!task) {
     return (
@@ -45,10 +58,33 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
     update({ listId: newListId, ...(currentAssigneeId && !assigneeStillValid ? { assigneeId: null } : {}) });
   }
 
+  async function handleAddImage(file: File) {
+    if (!file.type.startsWith("image/")) {
+      setAttachmentError(t("notAnImage"));
+      return;
+    }
+    setAttachmentError(null);
+    try {
+      const { dataUrl } = await resizeImageForAttachment(file);
+      await addAttachment({ dataUrl, filename: file.name || null });
+    } catch {
+      setAttachmentError(t("attachmentFailed"));
+    }
+  }
+
+  function handlePaste(e: React.ClipboardEvent) {
+    const item = Array.from(e.clipboardData.items).find((i) => i.type.startsWith("image/"));
+    const file = item?.getAsFile();
+    if (!file) return;
+    e.preventDefault();
+    void handleAddImage(file);
+  }
+
   return (
     <div
       className="flex flex-col gap-4 border-t border-zinc-100 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40"
       onClick={(e) => e.stopPropagation()}
+      onPaste={handlePaste}
     >
       <input
         value={task.title}
@@ -169,6 +205,13 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
           </button>
         </form>
       </div>
+
+      <AttachmentList
+        attachments={task.attachments}
+        onAddFile={handleAddImage}
+        onRemove={removeAttachment}
+        error={attachmentError}
+      />
 
       <SubtaskList
         subtasks={task.subtasks}

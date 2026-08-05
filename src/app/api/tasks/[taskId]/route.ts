@@ -5,7 +5,7 @@ import { tasks } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 import { unauthorized, notFound, badRequest } from "@/lib/api-helpers";
 import { updateTaskSchema, parseOptionalDueDate } from "@/lib/validation";
-import { attachTags, attachAssignees, attachSubtasks, replaceTaskTags } from "@/lib/tasks";
+import { attachTags, attachAssignees, attachSubtasks, attachAttachments, replaceTaskTags } from "@/lib/tasks";
 import { canAccessList, getListMembers } from "@/lib/lists";
 import { logActivity, shortUserLabel } from "@/lib/activity";
 import { withLogging } from "@/lib/api-logging";
@@ -27,7 +27,7 @@ export const GET = withLogging(
     const task = getAccessibleTask(taskId, userId);
     if (!task) return notFound();
 
-    const [withSubtasks] = attachSubtasks(attachAssignees(attachTags([task])));
+    const [withSubtasks] = attachAttachments(attachSubtasks(attachAssignees(attachTags([task]))));
     return NextResponse.json(withSubtasks);
   }
 );
@@ -123,7 +123,7 @@ export const PATCH = withLogging(
     }
 
     const [row] = db.select().from(tasks).where(eq(tasks.id, taskId)).all();
-    return NextResponse.json(attachSubtasks(attachAssignees(attachTags([row])))[0]);
+    return NextResponse.json(attachAttachments(attachSubtasks(attachAssignees(attachTags([row]))))[0]);
   }
 );
 

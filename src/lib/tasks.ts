@@ -1,9 +1,10 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { subtasks, tags, taskTags, users } from "@/db/schema";
+import { subtasks, tags, taskAttachments, taskTags, users } from "@/db/schema";
 import type { UserRef } from "@/lib/types";
 
 type SubtaskRow = typeof subtasks.$inferSelect;
+type AttachmentRow = typeof taskAttachments.$inferSelect;
 
 type TagRef = { id: string; name: string; color: string | null };
 
@@ -60,6 +61,29 @@ export function attachAssignees<T extends { id: string; assigneeId: string | nul
     .all();
   const byId = new Map(rows.map((u) => [u.id, u]));
   return taskRows.map((t) => ({ ...t, assignee: t.assigneeId ? (byId.get(t.assigneeId) ?? null) : null }));
+}
+
+export function attachAttachments<T extends { id: string }>(
+  taskRows: T[]
+): (T & { attachments: AttachmentRow[] })[] {
+  if (taskRows.length === 0) return [];
+
+  const ids = taskRows.map((t) => t.id);
+  const rows = db
+    .select()
+    .from(taskAttachments)
+    .where(inArray(taskAttachments.taskId, ids))
+    .orderBy(asc(taskAttachments.createdAt))
+    .all();
+
+  const byTask = new Map<string, AttachmentRow[]>();
+  for (const row of rows) {
+    const list = byTask.get(row.taskId) ?? [];
+    list.push(row);
+    byTask.set(row.taskId, list);
+  }
+
+  return taskRows.map((t) => ({ ...t, attachments: byTask.get(t.id) ?? [] }));
 }
 
 export function attachSubtasks<T extends { id: string }>(taskRows: T[]): (T & { subtasks: SubtaskRow[] })[] {

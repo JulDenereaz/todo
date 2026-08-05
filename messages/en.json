@@ -101,7 +101,16 @@
     "notesPlaceholder": "Add notes...",
     "tags": "Tags",
     "newTagPlaceholder": "New tag...",
-    "add": "Add"
+    "add": "Add",
+    "notAnImage": "Please choose an image file",
+    "attachmentFailed": "Failed to add the image"
+  },
+  "AttachmentList": {
+    "attachments": "Attachments",
+    "addImage": "Add image",
+    "pasteHint": "or paste a screenshot",
+    "viewImage": "View image",
+    "removeAttachment": "Remove attachment"
   },
   "SubtaskList": {
     "subtasks": "Subtasks",
