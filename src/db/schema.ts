@@ -111,6 +111,25 @@ export const taskTags = sqliteTable(
   (t) => [primaryKey({ columns: [t.taskId, t.tagId] })]
 );
 
+export const taskAttachments = sqliteTable(
+  "task_attachments",
+  {
+    id: text("id").primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => tasks.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    filename: text("filename"),
+    mimeType: text("mime_type").notNull(),
+    // Data URL of a client-resized (max 1600px) image, same storage pattern as users.avatarUrl.
+    dataUrl: text("data_url").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("task_attachments_task_idx").on(t.taskId)]
+);
+
 export const activity = sqliteTable(
   "activity",
   {

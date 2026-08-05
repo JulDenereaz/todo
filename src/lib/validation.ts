@@ -68,6 +68,17 @@ export const addListMemberSchema = z.object({
   userId: z.string().min(1),
 });
 
+// Cap bounds the worst case (client resizes to max 1600px before upload, but this is
+// still a generous ceiling, not a hard target).
+export const createAttachmentSchema = z.object({
+  filename: z.string().max(200).nullable().optional(),
+  dataUrl: z
+    .string()
+    .min(1)
+    .max(4_500_000)
+    .refine((v) => /^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(v), "Must be an image data URL"),
+});
+
 // Generous cap on a client-resized (128px) avatar data URL — bounds worst-case row size, not a hard target.
 export const updateProfileSchema = z.object({
   avatarUrl: z.string().max(300_000).nullable().optional(),

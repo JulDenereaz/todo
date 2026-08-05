@@ -40,6 +40,15 @@ export interface Subtask {
   createdAt: string;
 }
 
+export interface Attachment {
+  id: string;
+  taskId: string;
+  filename: string | null;
+  mimeType: string;
+  dataUrl: string;
+  createdAt: string;
+}
+
 export interface Task {
   id: string;
   listId: string;
@@ -59,8 +68,10 @@ export interface Task {
   subtasks: Subtask[];
 }
 
-/** Same shape as Task — separate name kept for call-site clarity in the task-detail hook/UI. */
-export type TaskDetail = Task;
+/** Same as Task plus attachments, which only the single-task detail endpoint returns (too heavy for the list view). */
+export interface TaskDetail extends Task {
+  attachments: Attachment[];
+}
 
 export type ActivityType =
   | "task_created"

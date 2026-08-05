@@ -1,6 +1,6 @@
 import useSWR, { useSWRConfig } from "swr";
 import { fetcher, apiRequest } from "@/lib/fetcher";
-import type { Subtask, Task, TaskDetail, Priority } from "@/lib/types";
+import type { Attachment, Subtask, Task, TaskDetail, Priority } from "@/lib/types";
 
 export function useTaskDetail(taskId: string | null) {
   const { data, error, isLoading, mutate } = useSWR<TaskDetail>(
@@ -81,6 +81,25 @@ export function useTaskDetail(taskId: string | null) {
     if (updated) syncListCaches((t) => ({ ...t, tags: updated.tags }));
   }
 
+  async function addAttachment(input: { dataUrl: string; filename?: string | null }) {
+    if (!taskId) return;
+    const created = await apiRequest<Attachment>(`/api/tasks/${taskId}/attachments`, "POST", input);
+    await mutate(
+      (current) => (current ? { ...current, attachments: [...current.attachments, created] } : current),
+      { revalidate: false }
+    );
+    return created;
+  }
+
+  async function removeAttachment(attachmentId: string) {
+    await mutate(
+      (current) =>
+        current ? { ...current, attachments: current.attachments.filter((a) => a.id !== attachmentId) } : current,
+      { revalidate: false }
+    );
+    await apiRequest(`/api/attachments/${attachmentId}`, "DELETE");
+  }
+
   return {
     task: data,
     error,
@@ -91,6 +110,8 @@ export function useTaskDetail(taskId: string | null) {
     deleteSubtask,
     addTag,
     removeTag,
+    addAttachment,
+    removeAttachment,
   };
 }
 
