@@ -88,6 +88,7 @@
   },
   "TaskDetailAccordion": {
     "loading": "Loading…",
+    "list": "List",
     "priority": "Priority",
     "priorityNone": "None",
     "priorityLow": "Low",

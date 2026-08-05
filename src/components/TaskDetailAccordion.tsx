@@ -39,6 +39,12 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
     await addTag(tag.id);
   }
 
+  function handleListChange(newListId: string, currentAssigneeId: string | null) {
+    const newList = lists.find((l) => l.id === newListId);
+    const assigneeStillValid = !currentAssigneeId || newList?.members.some((m) => m.id === currentAssigneeId);
+    update({ listId: newListId, ...(currentAssigneeId && !assigneeStillValid ? { assigneeId: null } : {}) });
+  }
+
   return (
     <div
       className="flex flex-col gap-4 border-t border-zinc-100 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40"
@@ -51,6 +57,21 @@ export default function TaskDetailAccordion({ taskId }: { taskId: string }) {
       />
 
       <div className="flex flex-wrap gap-3 text-sm">
+        <label className="flex items-center gap-1.5">
+          <span className="text-zinc-400">{t("list")}</span>
+          <select
+            value={task.listId}
+            onChange={(e) => handleListChange(e.target.value, task.assigneeId)}
+            className="rounded-md border border-zinc-200 bg-transparent px-2 py-1 dark:border-zinc-700"
+          >
+            {lists.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <label className="flex items-center gap-1.5">
           <span className="text-zinc-400">{t("priority")}</span>
           <select

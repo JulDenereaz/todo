@@ -88,6 +88,7 @@
   },
   "TaskDetailAccordion": {
     "loading": "Chargement…",
+    "list": "Liste",
     "priority": "Priorité",
     "priorityNone": "Aucune",
     "priorityLow": "Basse",
